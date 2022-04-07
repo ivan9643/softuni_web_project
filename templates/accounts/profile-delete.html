@@ -7,7 +7,7 @@
         <button class="delete_button" type="submit">Yes, delete</button>
     </form>
     {#    <button onclick="location.href = {% url 'profile details' request.user.id %};" class="go_back" id="go back button">No, go back</button>#}
-        <button onclick="location.href = {% url 'home' %}" class="go_back" id="go back button">No, go back</button>
+        <button onclick="location.href = {% url 'profile details' request.user.id %}" class="go_back">No, go back</button>
 {#    <button class="go_back"><a href="{% url 'profile details' request.user.id %}">go back</a>#}
 {#    </button>#}
 {% endblock %}

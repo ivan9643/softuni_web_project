@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_content %}
+    {% if not search %}
+        <h1>You didn't search for anything. :(</h1>
+    {% endif %}
+
+    {% if users_profiles %}
+        <h1>Showing results for "{{ search }}"</h1>
+
+        {% for user,profile in users_profiles %}
+            <div class="profile">
+                <h5>Username: <a href="{% url 'profile details' user.id %}">{{ user.username }}</a></h5>
+                {% if profile.picture %}
+                    <img class="small_image" src="{{ profile.picture.url }}">
+                {% else %}
+                    <img class="small_image" src="{% static 'images/no_profile_picture.png' %}">
+                {% endif %}
+                <p>Name: {{ profile.first_name }} {{ profile.last_name }}</p>
+                {#    <p>Bio: {{ profile.bio }}</p>#}
+                {#    <p>Date of birth: {{ profile.date_of_birth }}</p>#}
+                {#    <p>Email: {{ profile.email }}</p>#}
+                {#    <p>Gender: {{ profile.gender }}</p>#}
+                {#    <p>Posts: {{ posts_count }}</p>#}
+                {#    <p>Likes: {{ likes_count }}</p>#}
+            </div>
+        {% endfor %}
+    {% else %}
+        <h1>No results for "{{ search }}"</h1>
+    {% endif %}
+
+{% endblock %}

@@ -1,7 +1,8 @@
 import django.views.generic as views
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
+from softuni_web_project.accounts.models import Profile, CustomUser
 from softuni_web_project.main_app.forms import PostCreateForm, \
     PostEditForm
 from softuni_web_project.main_app.models import Post
@@ -54,3 +55,16 @@ class PostDeleteView(views.DeleteView):
     def get_success_url(self):
         return reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
 
+
+def search_profiles(request):
+    context = {}
+    if request.method == 'POST':
+        search = request.POST['search_text_input']
+        users = CustomUser.objects.filter(username__contains=search).exclude(username__exact=request.user.username)
+        users_ids = [user.id for user in users]
+        profiles = Profile.objects.filter(user__in=users)
+        context = {
+            'search': search,
+            'users_profiles': zip(users, profiles)
+        }
+    return render(request, 'main_app/search-profiles.html', context)
