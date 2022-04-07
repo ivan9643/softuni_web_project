@@ -1,7 +1,7 @@
 from django.contrib.auth import views as auth_views
 from django.views import generic as views
 from django.urls import reverse_lazy
-from softuni_web_project.accounts.forms import CreateProfileForm, ProfileEditForm, ProfileDeleteForm
+from softuni_web_project.accounts.forms import CreateProfileForm, ProfileEditForm
 from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.models import Post
 
@@ -29,7 +29,7 @@ class UserLogoutView(auth_views.LogoutView):
 
 class ProfileDetailsView(views.DetailView):
     model = Profile
-    template_name = 'accounts/profile_details.html'
+    template_name = 'accounts/profile-details.html'
     context_object_name = 'profile'
 
     def get_context_data(self, **kwargs):

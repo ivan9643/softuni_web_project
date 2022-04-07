@@ -2,6 +2,10 @@
 {% load static %}
 {% block page_content %}
     <a href="{% url 'profile edit' request.user.id %}">Edit Profile</a>
+     {% if is_owner %}
+        <a href="{% url 'profile delete' request.user.id %}">Delete profile</a>
+{#        #ask for password#}
+    {% endif %}
     <hr>
     <h5>Username: {{ profile.user.username }}</h5>
     {% if profile.picture %}
@@ -16,10 +20,7 @@
     <p>Gender: {{ profile.gender }}</p>
     <p>Posts: {{ posts_count }}</p>
     <p>Likes: {{ likes_count }}</p>
-    {% if is_owner %}
-        <a href="{% url 'profile delete' request.user.id %}">Delete profile</a>
-        #ask for password
-    {% endif %}
+
     {% for post in posts %}
         <div class="post">
             <h4>{{ post.caption }}</h4>
@@ -28,10 +29,10 @@
             {% endif %}
             <p>Likes: {{ post.likes }}</p>
             <p>Published on: {{ post.publication_date }}</p>
-{#            {% if is_owner %}#}
-{#                <a href="{% url 'post edit' post.id %}">Edit post</a>#}
-{#                <a href="{% url 'post delete' post.id %}">Delete post</a>#}
-{#            {% endif %}#}
+            {% if is_owner %}
+                <a href="{% url 'post edit' post.id %}">Edit post</a>
+                <a href="{% url 'post delete' post.id %}">Delete post</a>
+            {% endif %}
         </div>
     {% endfor %}
 {% endblock %}

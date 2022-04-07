@@ -1,8 +1,0 @@
-{% extends 'base.html' %}
-{% block page_content %}
-<form method="post" action="{% url 'create post' %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form }}
-    <button type="submit">Post</button>
-</form>
-{% endblock %}

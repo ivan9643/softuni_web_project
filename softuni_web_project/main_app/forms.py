@@ -3,7 +3,7 @@ from django import forms
 from softuni_web_project.main_app.models import Post
 
 
-class CreatePostForm(forms.ModelForm):
+class PostCreateForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
@@ -22,6 +22,7 @@ class CreatePostForm(forms.ModelForm):
         if commit:
             post.save()
         return post
+
     # hashtags = forms.
     # make hashtags in post.save method
     #     def save(self, commit=True):
@@ -44,3 +45,29 @@ class CreatePostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ('caption', 'photo')
+
+
+class PostEditForm(forms.ModelForm):
+    caption = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Enter caption'
+            }
+        )
+    )
+
+    # photo = forms.ImageField(
+    #     required=False,
+    #     disabled=True,
+    # )
+
+    def save(self, commit=True):
+        post = super().save(commit=False)
+        if commit:
+            post.save()
+        return post
+
+    class Meta:
+        model = Post
+        fields = ('caption',)

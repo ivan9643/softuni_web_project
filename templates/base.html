@@ -15,9 +15,31 @@
         }
 
         .delete_button {
-            color: red;
+            background-color: orangered;
+            float: left;
+        }
+
+        .delete_button:hover {
+            background-color: darkorange;
+        }
+
+        .go_back {
+            background-color: deepskyblue;
+        }
+
+        .go_back:hover {
+            background-color: lightskyblue;
         }
     </style>
+    <script type="text/javascript">
+        {#document.getElementById("go back button").onclick = function () {#}
+        {#    location.href = {% url 'home' %};#}
+        {# };#}
+
+        {#function PofileDetails() {#}
+        {#    location.href = {% url 'home' %};#}
+        {# }#}
+    </script>
 </head>
 <body>
 {% if request.user.is_authenticated %}
@@ -25,7 +47,7 @@
     <a href="{% url 'profile details' request.user.id %}">Profile
         details</a>
     <a href="{% url 'logout' %}">Log out</a>
-    <a href="{% url 'create post' %}">Post something</a>
+    <a href="{% url 'post create' %}">Post something</a>
 {% endif %}
 {% block page_content %}
 {% endblock %}

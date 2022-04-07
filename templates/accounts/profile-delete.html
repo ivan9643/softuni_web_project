@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
 {% block page_content %}
-{#<form method="post" action="{% url 'profile delete' request.user.id %}" enctype="multipart/form-data">#}
-<form method="post" action="{% url 'profile delete' request.user.id %}">
-    {% csrf_token %}
-    {{ form }}
-    <button class="delete_button" type="submit">Delete</button>
-</form>
+    <form method="post" action="{% url 'profile delete' request.user.id %}">
+        {% csrf_token %}
+        {{ form }}
+        <h4>Are you sure, you want to delete your profile?</h4>
+        <button class="delete_button" type="submit">Yes, delete</button>
+    </form>
+    {#    <button onclick="location.href = {% url 'profile details' request.user.id %};" class="go_back" id="go back button">No, go back</button>#}
+        <button onclick="location.href = {% url 'home' %}" class="go_back" id="go back button">No, go back</button>
+{#    <button class="go_back"><a href="{% url 'profile details' request.user.id %}">go back</a>#}
+{#    </button>#}
 {% endblock %}

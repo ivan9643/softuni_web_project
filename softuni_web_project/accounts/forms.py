@@ -127,22 +127,21 @@ class ProfileEditForm(forms.ModelForm):
             ),
             'date_of_birth': forms.DateInput(
                 attrs={
-                    'min': '1920-01-01',
+                    # 'min': '1920-01-01',
                 }
             )
         }
 
 
-class ProfileDeleteForm(forms.ModelForm):
-    # def save(self, commit=True):
-    #     # should be done with signals
-    #     Post.objects.filter(user_id=self.instance.user_id).delete()
-    #     CustomUser.objects.get(id=self.instance.user_id).delete()
-    #     self.instance.delete()
-    #     return self.instance
-
-
-
-    class Meta:
-        model = Profile
-        fields = ()
+# class ProfileDeleteForm(forms.ModelForm):
+#     # def save(self, commit=True):
+#     #     # should be done with signals
+#     #     Post.objects.filter(user_id=self.instance.user_id).delete()
+#     #     CustomUser.objects.get(id=self.instance.user_id).delete()
+#     #     self.instance.delete()
+#     #     return self.instance
+#
+#
+#     class Meta:
+#         model = Profile
+#         fields = ()
