@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block page_content %}
+{#<form method="post" action="{% url 'profile delete' request.user.id %}" enctype="multipart/form-data">#}
+<form method="post" action="{% url 'profile delete' request.user.id %}">
+    {% csrf_token %}
+    {{ form }}
+    <button class="delete_button" type="submit">Delete</button>
+</form>
+{% endblock %}

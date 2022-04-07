@@ -1,7 +1,7 @@
 from django.contrib.auth import views as auth_views
 from django.views import generic as views
 from django.urls import reverse_lazy
-from softuni_web_project.accounts.forms import CreateProfileForm  # , EditProfileForm, DeleteProfileForm
+from softuni_web_project.accounts.forms import CreateProfileForm, ProfileEditForm, ProfileDeleteForm
 from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.models import Post
 
@@ -24,6 +24,9 @@ class UserLogoutView(auth_views.LogoutView):
     pass
 
 
+# login required mixin where needed !!!
+
+
 class ProfileDetailsView(views.DetailView):
     model = Profile
     template_name = 'accounts/profile_details.html'
@@ -41,3 +44,26 @@ class ProfileDetailsView(views.DetailView):
             'posts': posts,
         })
         return context
+
+
+class ProfileEditView(views.UpdateView):
+    form_class = ProfileEditForm
+    template_name = 'accounts/profile-edit.html'
+
+    def get_success_url(self):
+        return reverse_lazy('profile details', kwargs={'pk': self.object.user_id})
+
+    def get_queryset(self):
+        return Profile.objects.get_queryset()
+
+
+class ProfileDeleteView(views.DeleteView):
+    model = Profile
+    template_name = "accounts/profile-delete.html"
+    # form_class = ProfileDeleteForm
+
+    def get_success_url(self):
+        return reverse_lazy('unauthenticated user page')
+
+    # def get_queryset(self):
+    #     return Profile.objects.get_queryset()
