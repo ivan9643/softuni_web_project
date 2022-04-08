@@ -16,11 +16,17 @@ class UnauthenticatedUserView(views.TemplateView):
             return redirect('home')
         return super().dispatch(request, *args, **kwargs)
 
+# my_login_password12345
 
 class HomeView(views.ListView):
     model = Post
     template_name = 'main_app/home.html'
     context_object_name = 'posts'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('unauthenticated user page')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class PostCreateView(views.CreateView):
@@ -56,15 +62,26 @@ class PostDeleteView(views.DeleteView):
         return reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
 
 
-def search_profiles(request):
+def search_profiles_view(request):
     context = {}
     if request.method == 'POST':
         search = request.POST['search_text_input']
         users = CustomUser.objects.filter(username__contains=search).exclude(username__exact=request.user.username)
-        users_ids = [user.id for user in users]
+
         profiles = Profile.objects.filter(user__in=users)
+        users.order_by('-id')
+        profiles.order_by('-user_id')
+
         context = {
             'search': search,
             'users_profiles': zip(users, profiles)
         }
     return render(request, 'main_app/search-profiles.html', context)
+
+
+def follow_view(request, pk):
+    followed_user = Profile.objects.get(user_id=pk)
+    following_user = Profile.objects.get(user_id=request.user.id)
+    followed_user.followers.add(following_user)
+    following_user.following.add(followed_user)
+    return redirect('profile details', pk=pk)

@@ -100,3 +100,19 @@ class Profile(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
+
+    following = models.ManyToManyField(
+        'self',
+        related_name='following_users',
+        symmetrical=False,
+    )
+
+    followers = models.ManyToManyField(
+        'self',
+        related_name='followers_users',
+        symmetrical=False,
+    )
+
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'

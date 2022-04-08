@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from softuni_web_project.accounts.models import CustomUser
+
 UserModel = get_user_model()
 
 
@@ -34,14 +36,13 @@ class Post(models.Model):
         auto_now_add=True,
     )
 
-    likes = models.IntegerField(
-        default=0,
+    likes = models.ManyToManyField(
+        CustomUser,
+        related_name='post_likes'
     )
 
     hashtags = models.ManyToManyField(
         Hashtag,
-        null=True,
-        blank=True,
     )
 
 

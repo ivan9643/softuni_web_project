@@ -36,12 +36,16 @@ class ProfileDetailsView(views.DetailView):
         context = super().get_context_data(**kwargs)
         posts = Post.objects.filter(user_id=self.object.user_id)
         posts_count = len(posts)
-        likes_count = sum([post.likes for post in posts])
+        # likes_count = sum([post.likes for post in posts])
+        followers_count = self.object.followers.all().count()
+        following_count = self.object.following.all().count()
         context.update({
             'posts_count': posts_count,
-            'likes_count': likes_count,
+            # 'likes_count': likes_count,
             'is_owner': self.object.user_id == self.request.user.id,
             'posts': posts,
+            'followers_count': followers_count,
+            'following_count': following_count,
         })
         return context
 
@@ -60,6 +64,7 @@ class ProfileEditView(views.UpdateView):
 class ProfileDeleteView(views.DeleteView):
     model = Profile
     template_name = "accounts/profile-delete.html"
+
     # form_class = ProfileDeleteForm
 
     def get_success_url(self):
