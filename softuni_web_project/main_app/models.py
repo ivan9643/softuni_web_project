@@ -1,22 +1,22 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from softuni_web_project.accounts.models import CustomUser
-
 UserModel = get_user_model()
 
 
 class Hashtag(models.Model):
+    HASHTAG_MAX_LENGTH = 200
     name = models.CharField(
-        max_length=30,
+        max_length=HASHTAG_MAX_LENGTH,
     )
 
 
 class Post(models.Model):
+    CAPTION_MAX_LENGTH = 200
     caption = models.CharField(
         null=True,
         blank=True,
-        max_length=200,
+        max_length=CAPTION_MAX_LENGTH,
     )
 
     photo = models.ImageField(
@@ -37,7 +37,7 @@ class Post(models.Model):
     )
 
     likes = models.ManyToManyField(
-        CustomUser,
+        UserModel,
         related_name='post_likes'
     )
 
@@ -47,8 +47,9 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    COMMENT_MAX_LENGTH = 200
     content = models.CharField(
-        max_length=200,
+        max_length=COMMENT_MAX_LENGTH,
     )
 
     post = models.ForeignKey(

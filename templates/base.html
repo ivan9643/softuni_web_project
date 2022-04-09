@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,15 +42,6 @@
             background-color: lightskyblue;
         }
     </style>
-    <script type="text/javascript">
-        {#document.getElementById("go back button").onclick = function () {#}
-        {#    location.href = {% url 'home' %};#}
-        {# };#}
-
-        {#function PofileDetails() {#}
-        {#    location.href = {% url 'home' %};#}
-        {# }#}
-    </script>
 </head>
 <body>
 {% if request.user.is_authenticated %}

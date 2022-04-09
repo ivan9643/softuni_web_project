@@ -1,4 +1,4 @@
-from django.contrib.auth import views as auth_views
+from django.contrib.auth import views as auth_views, authenticate, login
 from django.views import generic as views
 from django.urls import reverse_lazy
 from softuni_web_project.accounts.forms import CreateProfileForm, ProfileEditForm
@@ -9,7 +9,18 @@ from softuni_web_project.main_app.models import Post
 class UserRegisterView(views.CreateView):
     form_class = CreateProfileForm
     template_name = 'accounts/register.html'
-    success_url = reverse_lazy('unauthenticated user page')
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        to_return = super().form_valid(form)
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password1']
+        user = authenticate(
+            username=username,
+            password=password,
+        )
+        login(self.request, user)
+        return to_return
 
 
 class UserLoginView(auth_views.LoginView):
@@ -36,15 +47,17 @@ class ProfileDetailsView(views.DetailView):
         context = super().get_context_data(**kwargs)
         posts = Post.objects.filter(user_id=self.object.user_id)
         posts_count = len(posts)
-        # likes_count = sum([post.likes for post in posts])
-        followers_count = self.object.followers.all().count()
+        likes_count = sum([post.likes.count() for post in posts])
+        follower_count = self.object.followers.all().count()
         following_count = self.object.following.all().count()
+        user_profile = Profile.objects.get(pk=self.request.user.id)
         context.update({
+            'user_profile': user_profile,
             'posts_count': posts_count,
-            # 'likes_count': likes_count,
+            'likes_count': likes_count,
             'is_owner': self.object.user_id == self.request.user.id,
             'posts': posts,
-            'followers_count': followers_count,
+            'follower_count': follower_count,
             'following_count': following_count,
         })
         return context

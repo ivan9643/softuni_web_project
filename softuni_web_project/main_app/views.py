@@ -1,11 +1,14 @@
 import django.views.generic as views
+from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
-from softuni_web_project.accounts.models import Profile, CustomUser
+from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.forms import PostCreateForm, \
     PostEditForm
 from softuni_web_project.main_app.models import Post
+
+UserModel = get_user_model()
 
 
 class UnauthenticatedUserView(views.TemplateView):
@@ -15,6 +18,7 @@ class UnauthenticatedUserView(views.TemplateView):
         if request.user.is_authenticated:
             return redirect('home')
         return super().dispatch(request, *args, **kwargs)
+
 
 # my_login_password12345
 
@@ -66,11 +70,11 @@ def search_profiles_view(request):
     context = {}
     if request.method == 'POST':
         search = request.POST['search_text_input']
-        users = CustomUser.objects.filter(username__contains=search).exclude(username__exact=request.user.username)
-
+        users = UserModel.objects.filter(username__contains=search).exclude(username__exact=request.user.username)
         profiles = Profile.objects.filter(user__in=users)
         users.order_by('-id')
         profiles.order_by('-user_id')
+        users = [user for user in users if not user.is_superuser and not user.is_staff]
 
         context = {
             'search': search,
@@ -80,8 +84,21 @@ def search_profiles_view(request):
 
 
 def follow_view(request, pk):
-    followed_user = Profile.objects.get(user_id=pk)
-    following_user = Profile.objects.get(user_id=request.user.id)
-    followed_user.followers.add(following_user)
-    following_user.following.add(followed_user)
+    followed_profile = Profile.objects.get(pk=pk)
+    following_profile = Profile.objects.get(pk=request.user.id)
+    if following_profile in followed_profile.followers.all():
+        followed_profile.followers.remove(following_profile)
+        following_profile.following.remove(followed_profile)
+    else:
+        followed_profile.followers.add(following_profile)
+        following_profile.following.add(followed_profile)
     return redirect('profile details', pk=pk)
+
+
+def post_like_view(request, pk):
+    post = Post.objects.get(pk=pk)
+    if request.user in post.likes.all():
+        post.likes.remove(request.user.id)
+    else:
+        post.likes.add(request.user.id)
+    return redirect('profile details', pk=post.user.id)
