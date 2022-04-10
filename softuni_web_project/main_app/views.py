@@ -1,5 +1,7 @@
 import django.views.generic as views
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
@@ -33,18 +35,18 @@ class HomeView(views.ListView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class PostCreateView(views.CreateView):
+class PostCreateView(LoginRequiredMixin, views.CreateView):
     form_class = PostCreateForm
     template_name = 'main_app/post-create.html'
     success_url = reverse_lazy('home')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
+        kwargs['profile'] = Profile.objects.get(user_id=self.request.user.id)
         return kwargs
 
 
-class PostEditView(views.UpdateView):
+class PostEditView(LoginRequiredMixin, views.UpdateView):
     form_class = PostEditForm
     template_name = 'main_app/post-edit.html'
 
@@ -55,7 +57,7 @@ class PostEditView(views.UpdateView):
         return reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
 
 
-class PostDeleteView(views.DeleteView):
+class PostDeleteView(LoginRequiredMixin, views.DeleteView):
     model = Post
     template_name = 'main_app/post-delete.html'
 
@@ -83,6 +85,7 @@ def search_profiles_view(request):
     return render(request, 'main_app/search-profiles.html', context)
 
 
+@login_required()
 def follow_view(request, pk):
     followed_profile = Profile.objects.get(pk=pk)
     following_profile = Profile.objects.get(pk=request.user.id)
@@ -95,10 +98,12 @@ def follow_view(request, pk):
     return redirect('profile details', pk=pk)
 
 
+@login_required()
 def post_like_view(request, pk):
     post = Post.objects.get(pk=pk)
-    if request.user in post.likes.all():
-        post.likes.remove(request.user.id)
+    profile = Profile.objects.get(user_id=request.user.id)
+    if profile in post.likes.all():
+        post.likes.remove(profile)
     else:
-        post.likes.add(request.user.id)
-    return redirect('profile details', pk=post.user.id)
+        post.likes.add(profile)
+    return redirect('profile details', pk=post.profile_id)

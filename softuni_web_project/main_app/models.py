@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-UserModel = get_user_model()
+from softuni_web_project.accounts.models import Profile
 
 
 class Hashtag(models.Model):
@@ -27,8 +27,8 @@ class Post(models.Model):
         # )
     )
 
-    user = models.ForeignKey(
-        UserModel,
+    profile = models.ForeignKey(
+        Profile,
         on_delete=models.CASCADE,
     )
 
@@ -37,7 +37,7 @@ class Post(models.Model):
     )
 
     likes = models.ManyToManyField(
-        UserModel,
+        Profile,
         related_name='post_likes'
     )
 

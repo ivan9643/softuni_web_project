@@ -5,6 +5,9 @@ from softuni_web_project.main_app.models import Post
 
 
 @admin.register(Post)
-class ProfileAdmin(admin.ModelAdmin):
+class PostAdmin(admin.ModelAdmin):
     list_display = ('caption', 'photo')
 
+
+class PostInlineAdmin(admin.StackedInline):
+    model = Post

@@ -5,10 +5,13 @@ $(document).ready(function () {
         const buttonText = $.trim($(`.like-button-${post_id}`).text())
 
         const url = $(this).attr('action')
-
-        let res;
-        let likes = $(`.like-count-${post_id}`).text()
-        likes = parseInt(likes)
+        let change;
+        let current_post_likes = $(`.like-count-${post_id}`).text()
+        current_post_likes = parseInt(current_post_likes)
+        let total_likes = $('.like-count-total').text()
+        total_likes = parseInt(total_likes)
+        // console.log(total_likes)
+        // console.log(current_post_likes)
         $.ajax({
             type: 'POST',
             url: url,
@@ -19,12 +22,13 @@ $(document).ready(function () {
             success: function (response) {
                 if (buttonText === 'Unlike') {
                     $(`.like-button-${post_id}`).text('Like')
-                    res = likes - 1
+                    change = -1
                 } else {
                     $(`.like-button-${post_id}`).text('Unlike')
-                    res = likes + 1
+                    change = 1
                 }
-                $(`.like-count-${post_id}`).text(res)
+                $(`.like-count-${post_id}`).text(current_post_likes + change)
+                $('.like-count-total').text(total_likes + change)
             },
             error: function (response) {
                 console.log('error', response)
@@ -39,7 +43,7 @@ $(document).ready(function () {
         const buttonText = $.trim($(`.follow-button-${user_id}`).text())
         const url = $(this).attr('action')
 
-        let res;
+        let change;
         let followers = $(`.follower-count-${user_id}`).text()
         followers = parseInt(followers)
         $.ajax({
@@ -52,12 +56,12 @@ $(document).ready(function () {
             success: function (response) {
                 if (buttonText === 'Unfollow') {
                     $(`.follow-button-${user_id}`).text('Follow')
-                    res = followers - 1
+                    change = -1
                 } else {
                     $(`.follow-button-${user_id}`).text('Unfollow')
-                    res = followers + 1
+                    change = 1
                 }
-                $(`.follower-count-${user_id}`).text(res)
+                $(`.follower-count-${user_id}`).text(followers + change)
             },
             error: function (response) {
                 console.log('error', response)

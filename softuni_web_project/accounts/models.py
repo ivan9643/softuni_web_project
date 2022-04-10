@@ -103,15 +103,19 @@ class Profile(models.Model):
 
     following = models.ManyToManyField(
         'self',
-        related_name='following_users',
+        related_name='following_profiles',
         symmetrical=False,
     )
 
     followers = models.ManyToManyField(
         'self',
-        related_name='followers_users',
+        related_name='followers_profiles',
         symmetrical=False,
     )
+
+    def __str__(self):
+        username = UserModel.objects.get(id=self.user_id).username
+        return username
 
     @property
     def full_name(self):

@@ -20,4 +20,4 @@ from softuni_web_project.main_app.models import Post
 @receiver(post_delete, sender=Profile)
 def auto_delete_user_and_posts(sender, instance, **kwargs):
     CustomUser.objects.get(id=instance.user_id).delete()
-    Post.objects.filter(user_id=instance.user_id).delete()
+    Post.objects.filter(profile_id=instance.user_id).delete()

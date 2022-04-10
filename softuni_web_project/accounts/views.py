@@ -1,4 +1,5 @@
 from django.contrib.auth import views as auth_views, authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import generic as views
 from django.urls import reverse_lazy
 from softuni_web_project.accounts.forms import CreateProfileForm, ProfileEditForm
@@ -45,7 +46,7 @@ class ProfileDetailsView(views.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        posts = Post.objects.filter(user_id=self.object.user_id)
+        posts = Post.objects.filter(profile_id=self.object.user_id)
         posts_count = len(posts)
         likes_count = sum([post.likes.count() for post in posts])
         follower_count = self.object.followers.all().count()
@@ -63,7 +64,7 @@ class ProfileDetailsView(views.DetailView):
         return context
 
 
-class ProfileEditView(views.UpdateView):
+class ProfileEditView(LoginRequiredMixin, views.UpdateView):
     form_class = ProfileEditForm
     template_name = 'accounts/profile-edit.html'
 
@@ -74,7 +75,7 @@ class ProfileEditView(views.UpdateView):
         return Profile.objects.get_queryset()
 
 
-class ProfileDeleteView(views.DeleteView):
+class ProfileDeleteView(LoginRequiredMixin, views.DeleteView):
     model = Profile
     template_name = "accounts/profile-delete.html"
 

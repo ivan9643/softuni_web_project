@@ -4,9 +4,9 @@ from softuni_web_project.main_app.models import Post
 
 
 class PostCreateForm(forms.ModelForm):
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, profile, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user = user
+        self.profile = profile
 
     caption = forms.CharField(
         max_length=200,
@@ -18,7 +18,7 @@ class PostCreateForm(forms.ModelForm):
 
     def save(self, commit=True):
         post = super().save(commit=False)
-        post.user = self.user
+        post.profile = self.profile
         if commit:
             post.save()
         return post

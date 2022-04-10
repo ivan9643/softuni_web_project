@@ -7,7 +7,7 @@
         <a href="{% url 'profile delete' request.user.id %}">Delete profile</a>
         {#        #ask for password#}
     {% else %}
-{#        <a href="{% url 'follow' profile.user_id %}">Follow</a>#}
+        {#        <a href="{% url 'follow' profile.user_id %}">Follow</a>#}
         <form action="{% url 'follow' profile.user_id %}" method="POST" class='follow-form' id='{{ profile.user_id }}'>
             {% csrf_token %}
             <input type="hidden" name="user_id" value={{ profile.user_id }}>
@@ -35,7 +35,8 @@
     <p>Email: {{ profile.email }}</p>
     <p>Gender: {{ profile.gender }}</p>
     <p>Posts: {{ posts_count }}</p>
-    <p>Likes: {{ likes_count }}</p>
+    <p>Likes: </p>
+    <p class="like-count-total">{{ likes_count }}</p>
     <p>Followers: <p>
     <p class="follower-count-{{ profile.user_id }}">{{ follower_count }}</p>
     <p>Following: {{ following_count }}<p>
@@ -49,13 +50,12 @@
             <p>Likes: </p>
             <p class="like-count-{{ post.id }}">{{ post.likes.count }}</p>
             <p>Published on: {{ post.publication_date }}</p>
-            {#            {% if post|liked_by:request.user.id %}#}
             <form action="{% url 'post like' post.id %}" method="POST" class='like-form' id='{{ post.id }}'>
                 {% csrf_token %}
                 <input type="hidden" name="post_id" value={{ post.id }}l>
 
                 <button type="submit" class="like-button-{{ post.id }}">
-                    {% if request.user not in post.likes.all %}
+                    {% if user_profile not in post.likes.all %}
                         Like
                     {% else %}
                         Unlike
@@ -67,7 +67,7 @@
                 <a href="{% url 'post delete' post.id %}">Delete post</a>
             {% endif %}
         </div>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-        <script src="{% static 'js/script.js' %}"></script>
     {% endfor %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}
