@@ -28,7 +28,8 @@ SECRET_KEY = 'django-insecure-54@)d!x$3zfpr8tzwr+t)9^v3&o=+ub9gzm26$2rzis+up^@lb
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'softuni-python-web-project.herokuapp.com'
+    '127.0.0.1',
+    'softuni-python-web-project.herokuapp.com',
 ]
 
 
