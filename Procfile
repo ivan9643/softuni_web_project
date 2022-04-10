@@ -1,1 +1,1 @@
-web: gunicorn softuni_web_project .wsgi
+web: gunicorn hello:softuni_web_project
