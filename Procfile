@@ -1,1 +1,1 @@
-web: gunicorn hello:softuni_web_project
+web: gunicorn --pythonpath softuni_web_project softuni_web_project.wsgi
