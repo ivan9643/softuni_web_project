@@ -1,0 +1,1 @@
+web: gunicorn softuni_web_project .wsgi
