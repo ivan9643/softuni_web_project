@@ -1,6 +1,8 @@
 from django.contrib.auth import base_user as auth_base
 from django.contrib.auth.hashers import make_password
 
+# from softuni_web_project.accounts.models import Profile
+
 
 class CustomUserManager(auth_base.BaseUserManager):
     def _create_user(self, username, password, **extra_fields):
@@ -18,6 +20,7 @@ class CustomUserManager(auth_base.BaseUserManager):
         return self._create_user(username, password, **extra_fields)
 
     def create_superuser(self, username, password=None, **extra_fields):
+        # super_user_profile = Profile()
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 

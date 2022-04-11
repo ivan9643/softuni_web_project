@@ -51,7 +51,7 @@ class ProfileDetailsView(views.DetailView):
         likes_count = sum([post.likes.count() for post in posts])
         follower_count = self.object.followers.all().count()
         following_count = self.object.following.all().count()
-        user_profile = Profile.objects.get(pk=self.request.user.id)
+        user_profile = Profile.objects.get(user_id=self.request.user.id)
         context.update({
             'user_profile': user_profile,
             'posts_count': posts_count,
