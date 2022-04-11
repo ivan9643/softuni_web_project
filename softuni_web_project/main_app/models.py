@@ -45,6 +45,8 @@ class Post(models.Model):
         Hashtag,
     )
 
+    def __str__(self):
+        return self.caption
 
 class Comment(models.Model):
     COMMENT_MAX_LENGTH = 200

@@ -28,11 +28,22 @@
     {% else %}
         <img class="image" src="{% static 'images/no_profile_picture.png' %}">
     {% endif %}
-
-    <p>Name: {{ profile.full_name }}</p>
-    <p>Bio: {{ profile.bio }}</p>
-    <p>Date of birth: {{ profile.date_of_birth }}</p>
-    <p>Email: {{ profile.email }}</p>
+    {% if profile.first_name and profile.last_name %}
+        <p>Name: {{ profile.full_name }}</p>
+    {% elif profile.first_name %}
+        <p>First name: {{ profile.first_name }}</p>
+    {% elif profile.last_name %}
+        <p>Last name: {{ profile.last_name }}</p>
+    {% endif %}
+    {% if profile.bio %}
+        <p>Bio: {{ profile.bio }}</p>
+    {% endif %}
+    {% if profile.date_of_birth %}
+        <p>Date of birth: {{ profile.date_of_birth }}</p>
+    {% endif %}
+    {% if profile.email %}
+        <p>Email: {{ profile.email }}</p>
+    {% endif %}
     <p>Gender: {{ profile.gender }}</p>
     <p>Posts: {{ posts_count }}</p>
     <p>Likes: </p>
@@ -40,7 +51,6 @@
     <p>Followers: <p>
     <p class="follower-count-{{ profile.user_id }}">{{ follower_count }}</p>
     <p>Following: {{ following_count }}<p>
-    <p style="color: red">test</p>
     {% for post in posts %}
         <div class="post">
             <h4>{{ post.caption }}</h4>

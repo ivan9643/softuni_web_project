@@ -1,11 +1,13 @@
 from django import forms
 from django.contrib.auth import forms as auth_forms, get_user_model
 
-from softuni_web_project.accounts.models import Profile, CustomUser
+from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.models import Post
 
+UserModel = get_user_model()
 
-class CreateProfileForm(auth_forms.UserCreationForm):
+
+class RegisterForm(auth_forms.UserCreationForm):
     first_name = forms.CharField(
         max_length=Profile.FIRST_NAME_MAX_LENGTH,
         required=False,
@@ -75,7 +77,7 @@ class CreateProfileForm(auth_forms.UserCreationForm):
         return user
 
     class Meta:
-        model = get_user_model()
+        model = UserModel
         fields = ('username', 'password1', 'password2')
         widgets = {
             'username': forms.TextInput(
@@ -93,7 +95,6 @@ class ProfileEditForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        # fields = ('first_name','last_name','picture','date_of_birth','bio','email','gender')
         exclude = ('user',)
         widgets = {
             'first_name': forms.TextInput(
@@ -106,11 +107,6 @@ class ProfileEditForm(forms.ModelForm):
                     'placeholder': 'Enter last name'
                 }
             ),
-            # 'picture': forms.TextInput(
-            #     attrs={
-            #         'placeholder': 'Enter URL'
-            #     }
-            # ),
             'email': forms.EmailInput(
                 attrs={
                     'placeholder': 'Enter email'
@@ -131,17 +127,3 @@ class ProfileEditForm(forms.ModelForm):
                 }
             )
         }
-
-
-# class ProfileDeleteForm(forms.ModelForm):
-#     # def save(self, commit=True):
-#     #     # should be done with signals
-#     #     Post.objects.filter(user_id=self.instance.user_id).delete()
-#     #     CustomUser.objects.get(id=self.instance.user_id).delete()
-#     #     self.instance.delete()
-#     #     return self.instance
-#
-#
-#     class Meta:
-#         model = Profile
-#         fields = ()

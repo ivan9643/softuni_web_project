@@ -2,13 +2,13 @@ from django.contrib.auth import views as auth_views, authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import generic as views
 from django.urls import reverse_lazy
-from softuni_web_project.accounts.forms import CreateProfileForm, ProfileEditForm
+from softuni_web_project.accounts.forms import RegisterForm, ProfileEditForm
 from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.models import Post
 
 
 class UserRegisterView(views.CreateView):
-    form_class = CreateProfileForm
+    form_class = RegisterForm
     template_name = 'accounts/register.html'
     success_url = reverse_lazy('home')
 

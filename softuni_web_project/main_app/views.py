@@ -76,11 +76,12 @@ def search_profiles_view(request):
         profiles = Profile.objects.filter(user__in=users)
         users.order_by('-id')
         profiles.order_by('-user_id')
-        users = [user for user in users if not user.is_superuser and not user.is_staff]
+        # users = [user for user in users if not user.is_superuser and not user.is_staff]
 
+        users_profiles = list(zip(users, profiles))
         context = {
             'search': search,
-            'users_profiles': zip(users, profiles)
+            'users_profiles': users_profiles
         }
     return render(request, 'main_app/search-profiles.html', context)
 
