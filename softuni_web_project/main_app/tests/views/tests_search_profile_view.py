@@ -12,7 +12,7 @@ class SearchProfileViewTests(TestCase):
     VALID_USERNAME = 'ivan'
     VALID_PASSWORD = 'my_password_123'
 
-    def test_search_profile_view_context_and_template__expect_success(self):
+    def test_search_profile_view_context_and_template_with_not_authenticated_user__expect_success(self):
         user = self.UserModel(username=self.VALID_USERNAME)
         user.set_password(self.VALID_PASSWORD)
         user.save()

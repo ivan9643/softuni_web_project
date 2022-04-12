@@ -1,5 +1,6 @@
 from django.urls import path
 
+from softuni_web_project.accounts.views import ViewFollowingView
 from softuni_web_project.main_app.views import UnauthenticatedUserView, \
     HomeView, PostCreateView, PostEditView, PostDeleteView, search_profiles_view, \
     follow_view, post_like_view
@@ -13,5 +14,5 @@ urlpatterns = (
     path('search/profiles', search_profiles_view, name='search profiles'),
     path('follow/<int:pk>', follow_view, name='follow'),
     path('post/like/<int:pk>', post_like_view, name='post like'),
-
+    path('view/following', ViewFollowingView.as_view(), name='view following')
 )

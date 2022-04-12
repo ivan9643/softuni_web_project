@@ -3,15 +3,23 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 
 from softuni_web_project.accounts.managers import CustomUserManager
-from softuni_web_project.tools.validators import validate_only_letters
+from softuni_web_project.tools.validators import validate_only_letters,\
+    validate_only_letters_digits_underscores_and_dots, \
+    validate_only_lowercase
 
 
 class CustomUser(auth_models.AbstractBaseUser, auth_models.PermissionsMixin):
     USERNAME_MAX_LENGTH = 30
+    USERNAME_MIN_LENGTH = 3
 
     username = models.CharField(
         max_length=USERNAME_MAX_LENGTH,
         unique=True,
+        validators=(
+            MinLengthValidator(3),
+            validate_only_letters_digits_underscores_and_dots,
+            validate_only_lowercase,
+        )
     )
 
     date_joined = models.DateTimeField(

@@ -2,7 +2,8 @@
 {% block page_content %}
     <form method="post" action="{% url 'profile edit' request.user.id %}" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form }}
+        {{ form.as_p }}
         <button type="submit">Edit</button>
+        <button class="go_back" type="submit" name="go_back_button">Back</button>
     </form>
 {% endblock %}

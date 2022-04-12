@@ -4,53 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <title>App</title>
-    <style>
-        .image {
-            max-width: 200px;
-            max-height: 200px;
-        }
-
-        .small_image {
-            max-width: 50px;
-            max-height: 50px;
-        }
-
-        .post {
-            border-style: inset;
-            border-color: lightgreen;
-        }
-
-        .profile {
-            border-style: inset;
-            border-color: deepskyblue;
-        }
-
-        .delete_button {
-            background-color: orangered;
-            float: left;
-        }
-
-        .delete_button:hover {
-            background-color: darkorange;
-        }
-
-        .go_back {
-            background-color: deepskyblue;
-        }
-
-        .go_back:hover {
-            background-color: lightskyblue;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+<a href="{% url 'home' %}">Home</a>
 {% if request.user.is_authenticated %}
-    <a href="{% url 'home' %}">Home</a>
-    <a href="{% url 'profile details' request.user.id %}">Profile
-        details</a>
-    <a href="{% url 'logout' %}">Log out</a>
     <a href="{% url 'post create' %}">Post something</a>
+    <a href="{% url 'profile details' request.user.id %}">Profile details</a>
+    <a href="{% url 'logout' %}">Log out</a>
+{% else %}
+    <a href="{% url 'login' %}">Log in</a>
+    <a href="{% url 'register' %}">Sign up</a>
 {% endif %}
+<br><br>
 {% block page_content %}
 {% endblock %}
 </body>

@@ -7,6 +7,16 @@ def validate_only_letters(value):
             raise ValidationError('Value must contain only letters')
 
 
+def validate_only_lowercase(value):
+    if value.lower() != value:
+        raise ValidationError('Value must contain only lowercase letters')
+
+
+def validate_only_letters_digits_underscores_and_dots(value):
+    for ch in value:
+        if not ch.isalpha() and not ch.isdigit() and not ch == '_' and not ch == '.':
+            raise ValidationError('Value must contain only letters, digits, underscores and dots')
+
 # def validate_file_max_size(max_size):
 #     def validate(value):
 #         filesize = value.file.size
@@ -15,4 +25,3 @@ def validate_only_letters(value):
 #             raise ValidationError('Max file size is %sMB' % str(megabyte_limit))
 #
 #     return validate
-

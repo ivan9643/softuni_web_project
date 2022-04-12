@@ -5,9 +5,9 @@
     {% if is_owner %}
         <a href="{% url 'profile edit' request.user.id %}">Edit Profile</a>
         <a href="{% url 'profile delete' request.user.id %}">Delete profile</a>
+        <a href="{% url 'view following' %}">View following</a>
         {#        #ask for password#}
     {% else %}
-        {#        <a href="{% url 'follow' profile.user_id %}">Follow</a>#}
         <form action="{% url 'follow' profile.user_id %}" method="POST" class='follow-form' id='{{ profile.user_id }}'>
             {% csrf_token %}
             <input type="hidden" name="user_id" value={{ profile.user_id }}>
@@ -79,5 +79,5 @@
         </div>
     {% endfor %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/dynamic_like_and_follow_script.js' %}"></script>
 {% endblock %}

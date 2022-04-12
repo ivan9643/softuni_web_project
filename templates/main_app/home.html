@@ -1,10 +1,69 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block page_content %}
     <form method="post" action="{% url 'search profiles' %}">
         {% csrf_token %}
-        <input type="search" placeholder="Search" name="search_text_input" aria-label="Search">
+        <input type="search" placeholder="Search a profile" name="search_text_input" aria-label="Search">
         <button type="submit">Search</button>
+        <input type="checkbox" name="show_all">
+        <label for="show_all">Show all profiles</label>
     </form>
-    <h1>Welcome, {{ request.user.username }}</h1>
-
+    {% if not posts %}
+        {% if user_profile.following.all %}
+            <h4>It looks like the people you follow haven't posted anything :(</h4>
+        {% else %}
+            <h4>It looks like you aren't following anyone :(</h4>
+        {% endif %}
+    {% endif %}
+    {% for post in posts %}
+        <div class="post">
+            {% if post.profile.picture %}
+                <img class="profile_picture" src="{{ post.profile.picture.url }}">
+            {% else %}
+                <img class="profile_picture" src="{% static 'images/no_profile_picture.png' %}">
+            {% endif %}
+            <h4><a href="{% url 'profile details' post.profile.user_id %}">{{ post.profile.user.username }}</a></h4>
+            <p>{{ post.caption }}</p>
+            {% if post.photo %}
+                <img class="image" src="{{ post.photo.url }}">
+            {% endif %}
+            <p>Likes: </p>
+            <p class="like-count-{{ post.id }}">{{ post.likes.count }}</p>
+            <p>Published on: {{ post.publication_date }}</p>
+            <form action="{% url 'post like' post.id %}" method="POST" class='like-form' id='{{ post.id }}'>
+                {% csrf_token %}
+                {#                <input type="hidden" name="post_id" value={{ post.id }}l>#}
+                <button type="submit" class="like-button-{{ post.id }}">
+                    {% if user_profile not in post.likes.all %}
+                        Like
+                    {% else %}
+                        Unlike
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    {% endfor %}
+    {% if is_paginated %}
+        <div class="paginator">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+            {% else %}
+                <a><span>&laquo;</span></a>
+            {% endif %}
+            {% for i in paginator.page_range %}
+                {% if page_obj.number == i %}
+                    <a class="current_page"><span>{{ i }} </span></a>
+                {% else %}
+                    <a href="?page={{ i }}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+            {% else %}
+                <a><span>&raquo;</span></a>
+            {% endif %}
+        </div>
+    {% endif %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="{% static 'js/dynamic_like_and_follow_script.js' %}"></script>
 {% endblock %}

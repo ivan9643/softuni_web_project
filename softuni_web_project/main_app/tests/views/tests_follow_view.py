@@ -4,6 +4,8 @@ from django.urls import reverse
 
 from softuni_web_project.accounts.models import Profile
 
+9
+
 
 class FollowViewTests(TestCase):
     UserModel = get_user_model()
@@ -34,7 +36,6 @@ class FollowViewTests(TestCase):
         self.profile_followed.save()
 
     def test_follow_view__following_and_redirect__expect_user_to_be_followed(self):
-
         self.client.login(username=self.VALID_USERNAME, password=self.VALID_PASSWORD)
         response = self.client.get(reverse('follow', kwargs={'pk': self.user_followed.id}))
         self.assertTrue(self.profile_following in self.profile_followed.followers.all())

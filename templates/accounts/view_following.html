@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_content %}
+    {% if user_profile.following.all %}
+        <h4>People you are following</h4>
+    {% else %}
+        <h4>It looks like you aren't following anyone :(</h4>
+    {% endif %}
+    {% for profile in profiles %}
+        <div class="profile">
+            {% if post.profile.picture %}
+                <img class="small_image" src="{{ post.profile.picture.url }}">
+            {% else %}
+                <img class="small_image" src="{% static 'images/no_profile_picture.png' %}">
+            {% endif %}
+            <h4><a href="{% url 'profile details' profile.user_id %}">{{ profile.user.username }}</a></h4>
+            <form action="{% url 'follow' profile.user_id %}" method="POST" class='follow-form'
+                  id='{{ profile.user_id }}'>
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value={{ profile.user_id }}>
+
+                <button type="submit" class="follow-button-{{ profile.user_id }}">
+                    {% if user_profile not in profile.followers.all %}
+                        Follow
+                    {% else %}
+                        Unfollow
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    {% endfor %}
+    {% if is_paginated %}
+        <div class="paginator">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+            {% else %}
+                <a><span>&laquo;</span></a>
+            {% endif %}
+            {% for i in paginator.page_range %}
+                {% if page_obj.number == i %}
+                    <a class="current_page"><span>{{ i }} </span></a>
+                {% else %}
+                    <a href="?page={{ i }}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+            {% else %}
+                <a><span>&raquo;</span></a>
+            {% endif %}
+        </div>
+    {% endif %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="{% static 'js/dynamic_like_and_follow_script.js' %}"></script>
+{% endblock %}

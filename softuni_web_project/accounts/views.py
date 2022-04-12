@@ -1,8 +1,10 @@
 from django.contrib.auth import views as auth_views, authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
 from django.views import generic as views
 from django.urls import reverse_lazy
-from softuni_web_project.accounts.forms import RegisterForm, ProfileEditForm
+from softuni_web_project.accounts.forms import RegisterForm, ProfileEditForm, \
+    LoginForm
 from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.models import Post
 
@@ -25,11 +27,9 @@ class UserRegisterView(views.CreateView):
 
 
 class UserLoginView(auth_views.LoginView):
+    form_class = LoginForm
     template_name = 'accounts/login.html'
     success_url = reverse_lazy('home')
-
-    # def get_success_url(self):
-    #     return reverse_lazy('profile details',kwargs={'pk':self.request.user.id})
 
 
 class UserLogoutView(auth_views.LogoutView):
@@ -46,7 +46,7 @@ class ProfileDetailsView(views.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        posts = Post.objects.filter(profile_id=self.object.user_id)
+        posts = Post.objects.filter(profile_id=self.object.user_id).order_by('-publication_date')
         posts_count = len(posts)
         likes_count = sum([post.likes.count() for post in posts])
         follower_count = self.object.followers.all().count()
@@ -68,6 +68,12 @@ class ProfileEditView(LoginRequiredMixin, views.UpdateView):
     form_class = ProfileEditForm
     template_name = 'accounts/profile-edit.html'
 
+    def post(self, request, *args, **kwargs):
+        if 'go_back_button' in request.POST:
+            redirect_url = reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
+            return HttpResponseRedirect(redirect_url)
+        return super().post(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse_lazy('profile details', kwargs={'pk': self.object.user_id})
 
@@ -77,12 +83,30 @@ class ProfileEditView(LoginRequiredMixin, views.UpdateView):
 
 class ProfileDeleteView(LoginRequiredMixin, views.DeleteView):
     model = Profile
-    template_name = "accounts/profile-delete.html"
+    template_name = 'accounts/profile-delete.html'
+    success_url = reverse_lazy('unauthenticated user page')
 
-    # form_class = ProfileDeleteForm
+    def post(self, request, *args, **kwargs):
+        if 'go_back_button' in request.POST:
+            redirect_url = reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
+            return HttpResponseRedirect(redirect_url)
+        return super().post(request, *args, **kwargs)
 
-    def get_success_url(self):
-        return reverse_lazy('unauthenticated user page')
 
-    # def get_queryset(self):
-    #     return Profile.objects.get_queryset()
+class ViewFollowingView(views.ListView):
+    model = Profile
+    template_name = 'accounts/view_following.html'
+    context_object_name = 'profiles'
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_profile = Profile.objects.get(user_id=self.request.user.id)
+        context.update({
+            'user_profile': user_profile
+        })
+        return context
+
+    def get_queryset(self):
+        user_profile = Profile.objects.get(user_id=self.request.user.id)
+        return Profile.objects.filter(user__in=user_profile.following.all())

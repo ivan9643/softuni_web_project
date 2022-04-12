@@ -10,8 +10,6 @@ $(document).ready(function () {
         current_post_likes = parseInt(current_post_likes)
         let total_likes = $('.like-count-total').text()
         total_likes = parseInt(total_likes)
-        // console.log(total_likes)
-        // console.log(current_post_likes)
         $.ajax({
             type: 'POST',
             url: url,

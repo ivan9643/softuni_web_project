@@ -1,8 +1,39 @@
 {% extends 'base.html' %}
 {% block page_content %}
-<form method="post" action="{% url 'register' %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form }}
-    <button type="submit">Register</button>
-</form>
+    <form method="post" action="{% url 'register' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+{#        <label for="id_username">Username:</label>#}
+{#        <input type="text" name="username" placeholder="Enter username" maxlength="30" autofocus="" required=""#}
+{#               id="id_username">#}
+{#        <label for="id_password1">Password:</label>#}
+{#        <input type="password" name="password1" placeholder="Enter password" required="" id="id_password1">#}
+{#        <br>#}
+{#        <span class="helptext"><ul><li>Your password can’t be too similar to your other personal information.</li><li>Your password must contain at least 8 characters.</li><li>Your password can’t be a commonly used password.</li><li>Your password can’t be entirely numeric.</li></ul></span>#}
+{#        <label for="id_password2">Password confirmation:</label>#}
+{#        <input type="password" name="password2" placeholder="Confirm password" required="" id="id_password2">#}
+{#        <br>#}
+{#        <span class="helptext">Enter the same password as before, for verification.</span>#}
+{#        <label for="id_first_name">First name:</label>#}
+{#        <input type="text" name="first_name" placeholder="Enter first name" maxlength="30" id="id_first_name">#}
+{#        <label for="id_last_name">Last name:</label>#}
+{#        <input type="text" name="last_name" placeholder="Enter last name" maxlength="30" id="id_last_name">#}
+{#        <label for="id_picture">Picture:</label>#}
+{#        <input type="file" name="picture" accept="image/*" id="id_picture">#}
+{#        <label for="id_date_of_birth">Date of birth:</label>#}
+{#        <input type="text" name="date_of_birth" placeholder="Enter date of birth" id="id_date_of_birth">#}
+{#        <label for="id_bio">Bio:</label>#}
+{#        <textarea name="bio" cols="40" rows="5" placeholder="Enter bio" id="id_bio"></textarea>#}
+{#        <label for="id_email">Email:</label>#}
+{#        <input type="email" name="email" placeholder="Enter email" id="id_email">#}
+{#        <label for="id_gender">Gender:</label>#}
+{#        <select name="gender" id="id_gender">#}
+{#            <option value="Male">Male</option>#}
+{#            <option value="Female">Female</option>#}
+{#            <option value="Do not show" selected="">Do not show</option>#}
+{#        </select>#}
+        <button type="submit">Register</button>
+    </form>
+    <h4>Have an account? <a href="{% url 'login' %}">Log in</a></h4>
+    <h4>Or browse as a <a href="{% url 'home' %}">guest</a></h4>
 {% endblock %}

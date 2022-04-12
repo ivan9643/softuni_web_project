@@ -1,12 +1,15 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block page_content %}
-    {% if not search %}
+    {% if not search and not show_all %}
         <h1>You didn't search for anything. :(</h1>
     {% else %}
         {% if users_profiles %}
-            <h1>Showing results for "{{ search }}"</h1>
-
+            {% if search %}
+                <h1>Showing results for "{{ search }}"</h1>
+            {% else %}
+                <h1>Showing all profiles</h1>
+            {% endif %}
             {% for user,profile in users_profiles %}
                 <div class="profile">
                     <h5>Username: <a href="{% url 'profile details' user.id %}">{{ user.username }}</a></h5>
@@ -15,19 +18,32 @@
                     {% else %}
                         <img class="small_image" src="{% static 'images/no_profile_picture.png' %}">
                     {% endif %}
-                    <p>Name: {{ profile.full_name }}</p>
-                    {#    <p>Bio: {{ profile.bio }}</p>#}
-                    {#    <p>Date of birth: {{ profile.date_of_birth }}</p>#}
-                    {#    <p>Email: {{ profile.email }}</p>#}
-                    {#    <p>Gender: {{ profile.gender }}</p>#}
-                    {#    <p>Posts: {{ posts_count }}</p>#}
-                    {#    <p>Likes: {{ likes_count }}</p>#}
+                    <form action="{% url 'follow' profile.user_id %}" method="POST" class='follow-form'
+                          id='{{ profile.user_id }}'>
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value={{ profile.user_id }}>
+
+                        <button type="submit" class="follow-button-{{ profile.user_id }}">
+                            {% if user_profile not in profile.followers.all %}
+                                Follow
+                            {% else %}
+                                Unfollow
+                            {% endif %}
+                        </button>
+                    </form>
+                    {% if profile.first_name and profile.last_name %}
+                        <p>Name: {{ profile.full_name }}</p>
+                    {% elif profile.first_name %}
+                        <p>First name: {{ profile.first_name }}</p>
+                    {% elif profile.last_name %}
+                        <p>Last name: {{ profile.last_name }}</p>
+                    {% endif %}
                 </div>
             {% endfor %}
         {% else %}
             <h1>No results for "{{ search }}"</h1>
         {% endif %}
     {% endif %}
-
-
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="{% static 'js/dynamic_like_and_follow_script.js' %}"></script>
 {% endblock %}

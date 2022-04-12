@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth import forms as auth_forms, get_user_model
+from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
 
 from softuni_web_project.accounts.models import Profile
-from softuni_web_project.main_app.models import Post
 
 UserModel = get_user_model()
 
@@ -59,6 +60,21 @@ class RegisterForm(auth_forms.UserCreationForm):
         initial='Do not show',
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].widget = forms.PasswordInput(
+            attrs={
+                'placeholder': 'Enter password'
+            }
+        )
+        self.fields['password2'].widget = forms.PasswordInput(
+            attrs={
+                'placeholder': 'Confirm password'
+            }
+        )
+        for field_name in ['username', 'password1', 'password2']:
+            self.fields[field_name].help_text = None
+
     def save(self, commit=True):
         user = super().save(commit=False)
         profile = Profile(
@@ -88,14 +104,23 @@ class RegisterForm(auth_forms.UserCreationForm):
         }
 
 
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter username'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Enter password'}))
+
+    def clean(self):
+        username = self.cleaned_data['username']
+        if not username == username.lower():
+            raise ValidationError('Username must be lowercase only')
+
+
 class ProfileEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.initial['gender'] = Profile.DO_NOT_SHOW
 
     class Meta:
         model = Profile
-        exclude = ('user',)
+        exclude = ('user', 'followers','following')
         widgets = {
             'first_name': forms.TextInput(
                 attrs={
@@ -125,5 +150,10 @@ class ProfileEditForm(forms.ModelForm):
                 attrs={
                     # 'min': '1920-01-01',
                 }
-            )
+            ),
+            'following': forms.SelectMultiple(
+                attrs={
+                    'size': 10,
+                }
+            ),
         }

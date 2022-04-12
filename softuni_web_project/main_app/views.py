@@ -14,36 +14,43 @@ UserModel = get_user_model()
 
 
 class UnauthenticatedUserView(views.TemplateView):
-    template_name = 'main_app/unauthenticated-user-page.html'
-
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('home')
-        return super().dispatch(request, *args, **kwargs)
+        else:
+            return redirect('login')
 
-
-# my_login_password12345
 
 class HomeView(views.ListView):
     model = Post
     template_name = 'main_app/home.html'
     context_object_name = 'posts'
+    paginate_by = 2
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('unauthenticated user page')
-        return super().dispatch(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_profile = Profile.objects.get(user_id=self.request.user.id)
+        context.update({
+            'user_profile': user_profile
+        })
+        return context
+
+    def get_queryset(self):
+        user_profile = Profile.objects.get(user_id=self.request.user.id)
+        return Post.objects.filter(profile__in=user_profile.following.all())
 
 
 class PostCreateView(LoginRequiredMixin, views.CreateView):
     form_class = PostCreateForm
     template_name = 'main_app/post-create.html'
-    success_url = reverse_lazy('home')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['profile'] = Profile.objects.get(user_id=self.request.user.id)
         return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
 
 
 class PostEditView(LoginRequiredMixin, views.UpdateView):
@@ -71,18 +78,25 @@ class PostDeleteView(LoginRequiredMixin, views.DeleteView):
 def search_profiles_view(request):
     context = {}
     if request.method == 'POST':
-        search = request.POST['search_text_input']
-        users = UserModel.objects.filter(username__contains=search).exclude(username__exact=request.user.username)
+        show_all = request.POST.get('show_all', False)
+        if show_all:
+            users = UserModel.objects.all().exclude(username__exact=request.user.username)
+            search = None
+        else:
+            search = request.POST['search_text_input']
+            users = UserModel.objects.filter(username__contains=search).exclude(username__exact=request.user.username)
         profiles = Profile.objects.filter(user__in=users)
         users.order_by('-id')
         profiles.order_by('-user_id')
-        # users = [user for user in users if not user.is_superuser and not user.is_staff]
 
         users_profiles = list(zip(users, profiles))
         context = {
-            'search': search,
             'users_profiles': users_profiles
         }
+        if search:
+            context['search'] = search
+        else:
+            context['show_all'] = show_all
     return render(request, 'main_app/search-profiles.html', context)
 
 
@@ -108,3 +122,7 @@ def post_like_view(request, pk):
     else:
         post.likes.add(profile)
     return redirect('profile details', pk=post.profile_id)
+
+
+def csrf_failure(request, reason=""):
+    return render(request, 'main_app/403_csrf.html')
