@@ -14,41 +14,34 @@ class ProfileDetailsViewTests(TestCase):
     VALID_PASSWORD = 'my_password_123'
     VALID_POST_CAPTION = 'post caption'
 
-    def test_profile_details_view_context_and_template__when_user_is_owner_of_the_profile__expects_success(self):
-        user = self.UserModel(username=self.VALID_USERNAME)
-        user.set_password(self.VALID_PASSWORD)
-        user.save()
-        profile = Profile(
+    def setUp(self) -> None:
+        self.user1 = self.UserModel(username=self.VALID_USERNAME)
+        self.user1.set_password(self.VALID_PASSWORD)
+        self.user1.save()
+        self.profile1 = Profile(
             first_name=self.VALID_FIRST_NAME,
             last_name=self.VALID_LAST_NAME,
-            user_id=user.id
+            user=self.user1
         )
-        profile.save()
-        post = Post(id=1,profile=profile, caption=self.VALID_POST_CAPTION)
-        post.likes.add(profile)
-        post.save()
-        self.client.login(username=user.username, password=self.VALID_PASSWORD)
-        response = self.client.get(reverse('profile details', kwargs={'pk': user.id}))
+        self.profile1.save()
+        self.post = Post(id=1,profile=self.profile1, caption=self.VALID_POST_CAPTION)
+        self.post.save()
+
+
+    def test_profile_details_view_context_and_template__when_user_is_owner_of_the_profile__expect_success(self):
+        self.post.likes.add(self.profile1)
+        self.client.login(username=self.user1.username, password=self.VALID_PASSWORD)
+        response = self.client.get(reverse('profile details', kwargs={'pk': self.user1.id}))
         self.assertTemplateUsed(response,'accounts/profile-details.html')
-        self.assertEqual(response.context['user_profile'], profile)
+        self.assertEqual(response.context['user_profile'], self.profile1)
         self.assertEqual(response.context['posts_count'], 1)
         self.assertEqual(response.context['likes_count'], 1)
         self.assertTrue(response.context['is_owner'])
-        self.assertEqual(list(response.context['posts']), [post])
+        self.assertEqual(list(response.context['posts']), [self.post])
         self.assertEqual(response.context['follower_count'], 0)
         self.assertEqual(response.context['following_count'], 0)
 
-    def test_profile_details_view_context_and_template__when_user_is_not_owner_of_the_profile__expects_success(self):
-        user1 = self.UserModel(username=self.VALID_USERNAME)
-        user1.set_password(self.VALID_PASSWORD)
-        user1.save()
-        profile1 = Profile(
-            first_name=self.VALID_FIRST_NAME,
-            last_name=self.VALID_LAST_NAME,
-            user_id=user1.id
-        )
-        profile1.save()
-
+    def test_profile_details_view_context_and_template__when_user_is_not_owner_of_the_profile__expect_success(self):
         user2 = self.UserModel(username=f'{self.VALID_USERNAME}2')
         user2.set_password(self.VALID_PASSWORD)
         user2.save()
@@ -59,22 +52,20 @@ class ProfileDetailsViewTests(TestCase):
         )
         profile2.save()
 
-        profile1.followers.add(profile2)
-        profile1.following.add(profile1)
-        profile2.followers.add(profile1)
-        profile2.following.add(profile1)
+        self.profile1.followers.add(profile2)
+        self.profile1.following.add(self.profile1)
+        profile2.followers.add(self.profile1)
+        profile2.following.add(self.profile1)
 
-        post = Post(id=1,profile=profile1, caption=self.VALID_POST_CAPTION)
-        post.likes.add(profile1)
-        post.likes.add(profile2)
-        post.save()
+        self.post.likes.add(self.profile1)
+        self.post.likes.add(profile2)
         self.client.login(username=user2.username, password=self.VALID_PASSWORD)
-        response = self.client.get(reverse('profile details', kwargs={'pk': user1.id}))
+        response = self.client.get(reverse('profile details', kwargs={'pk': self.user1.id}))
         self.assertTemplateUsed(response,'accounts/profile-details.html')
         self.assertEqual(response.context['user_profile'], profile2)
         self.assertEqual(response.context['posts_count'], 1)
         self.assertEqual(response.context['likes_count'], 2)
         self.assertFalse(response.context['is_owner'])
-        self.assertEqual(list(response.context['posts']), [post])
+        self.assertEqual(list(response.context['posts']), [self.post])
         self.assertEqual(response.context['follower_count'], 1)
         self.assertEqual(response.context['following_count'], 1)

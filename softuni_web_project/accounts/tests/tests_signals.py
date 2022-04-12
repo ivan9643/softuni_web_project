@@ -13,25 +13,24 @@ class SignalsTests(TestCase):
     VALID_PASSWORD = 'my_password_123'
     VALID_POST_CAPTION = 'post caption'
 
+    def setUp(self) -> None:
+        self.user = self.UserModel(username=self.VALID_USERNAME)
+        self.user.set_password(self.VALID_PASSWORD)
+        self.user.is_superuser = True
+        self.user.save()
+
     def test_auto_create_profile_after_creating_superuser(self):
-        user = self.UserModel(username=self.VALID_USERNAME)
-        user.set_password(self.VALID_PASSWORD)
-        user.is_superuser = True
-        user.save()
         try:
-            user_profile = Profile.objects.get(user_id=user.id)
+            user_profile = Profile.objects.get(user_id=self.user.id)
         except Profile.DoesNotExist:
             user_profile = None
         self.assertIsNotNone(user_profile)
 
     def test_auto_delete_user_and_posts(self):
-        user = self.UserModel(username=self.VALID_USERNAME)
-        user.set_password(self.VALID_PASSWORD)
-        user.save()
         profile = Profile(
             first_name=self.VALID_FIRST_NAME,
             last_name=self.VALID_LAST_NAME,
-            user_id=user.id
+            user_id=self.user.id
         )
         profile.save()
         post = Post(id=1, profile=profile, caption=self.VALID_POST_CAPTION)
@@ -39,7 +38,7 @@ class SignalsTests(TestCase):
         post.save()
         profile.delete()
         try:
-            user = self.UserModel.objects.get(id=user.id)
+            user = self.UserModel.objects.get(id=self.user.id)
         except self.UserModel.DoesNotExist:
             user = None
         try:
