@@ -1,18 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block page_content %}
-    <h1 class="mb-3" style="text-align: center">
-        {% if not search and not show_all %}
-            You didn't search for anything. :(
-        {% else %}
-            {% if profiles %}
-                {% if search %}
-                    Showing results for "{{ search }}"
-                {% else %}
-                    Showing all profiles
-                {% endif %}
-                </h1>
-                <div class="row mb-lg-4 justify-content-center">
+    {% if user_profile.following.all %}
+        <h4>People you are following</h4>
+    {% else %}
+        <h4>It looks like you aren't following anyone :(</h4>
+    {% endif %}
+    <div class="row mb-lg-4 justify-content-center">
                     {% for profile in profiles %}
                         <div class="col-auto">
                             <div class="card" style="width: 18rem;">
@@ -55,10 +49,6 @@
                         </div>
                     {% endfor %}
                 </div>
-            {% else %}
-                <h1>No results for "{{ search }}"</h1>
-            {% endif %}
-        {% endif %}
     {% if is_paginated %}
         <div class="paginator">
             {% if page_obj.has_previous %}

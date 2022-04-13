@@ -2,6 +2,7 @@ import django.views.generic as views
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
@@ -29,15 +30,19 @@ class HomeView(views.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_profile = Profile.objects.get(user_id=self.request.user.id)
-        context.update({
-            'user_profile': user_profile
-        })
+        if self.request.user.is_authenticated:
+            user_profile = Profile.objects.get(user_id=self.request.user.id)
+            context.update({
+                'user_profile': user_profile
+            })
         return context
 
     def get_queryset(self):
-        user_profile = Profile.objects.get(user_id=self.request.user.id)
-        return Post.objects.filter(profile__in=user_profile.following.all())
+        queryset = super().get_queryset()
+        if self.request.user.is_authenticated:
+            user_profile = Profile.objects.get(user_id=self.request.user.id)
+            queryset = Post.objects.filter(profile__in=user_profile.following.all())
+        return queryset.order_by('-publication_date')
 
 
 class PostCreateView(LoginRequiredMixin, views.CreateView):
@@ -75,29 +80,28 @@ class PostDeleteView(LoginRequiredMixin, views.DeleteView):
         return reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
 
 
-def search_profiles_view(request):
-    context = {}
-    if request.method == 'POST':
-        show_all = request.POST.get('show_all', False)
-        if show_all:
-            users = UserModel.objects.all().exclude(username__exact=request.user.username)
-            search = None
-        else:
-            search = request.POST['search_text_input']
-            users = UserModel.objects.filter(username__contains=search).exclude(username__exact=request.user.username)
-        profiles = Profile.objects.filter(user__in=users)
-        users.order_by('-id')
-        profiles.order_by('-user_id')
+class SearchProfilesView(views.ListView):
+    template_name = 'main_app/search-profiles.html'
+    context_object_name = 'profiles'
 
-        users_profiles = list(zip(users, profiles))
-        context = {
-            'users_profiles': users_profiles
-        }
-        if search:
+    def get_queryset(self):
+        if 'search_text_input' in self.request.GET:
+            search = self.request.GET['search_text_input']
+            users = UserModel.objects.filter(username__contains=search).exclude(
+                username__exact=self.request.user.username)
+        elif 'show_all' in self.request.GET:
+            users = UserModel.objects.all().exclude(username__exact=self.request.user.username)
+        profiles = Profile.objects.filter(user__in=users).order_by('user__username')
+        return profiles
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        if 'search' in self.request.GET:
+            search = self.request.GET['search_text_input']
             context['search'] = search
-        else:
-            context['show_all'] = show_all
-    return render(request, 'main_app/search-profiles.html', context)
+        elif 'show_all' in self.request.GET:
+            context['show_all'] = True
+        return context
 
 
 @login_required()
@@ -122,6 +126,25 @@ def post_like_view(request, pk):
     else:
         post.likes.add(profile)
     return redirect('profile details', pk=post.profile_id)
+
+
+class ViewFollowingView(LoginRequiredMixin, views.ListView):
+    model = Profile
+    template_name = 'main_app/view_following.html'
+    context_object_name = 'profiles'
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_profile = Profile.objects.get(user_id=self.request.user.id)
+        context.update({
+            'user_profile': user_profile
+        })
+        return context
+
+    def get_queryset(self):
+        user_profile = Profile.objects.get(user_id=self.request.user.id)
+        return Profile.objects.filter(user__in=user_profile.following.all()).order_by('user__username')
 
 
 def csrf_failure(request, reason=""):

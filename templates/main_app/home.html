@@ -1,13 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block page_content %}
-    <form method="post" action="{% url 'search profiles' %}">
-        {% csrf_token %}
-        <input type="search" placeholder="Search a profile" name="search_text_input" aria-label="Search">
-        <button type="submit">Search</button>
-        <input type="checkbox" name="show_all">
-        <label for="show_all">Show all profiles</label>
-    </form>
     {% if not posts %}
         {% if user_profile.following.all %}
             <h4>It looks like the people you follow haven't posted anything :(</h4>
@@ -30,7 +23,11 @@
             <p>Likes: </p>
             <p class="like-count-{{ post.id }}">{{ post.likes.count }}</p>
             <p>Published on: {{ post.publication_date }}</p>
-            <form action="{% url 'post like' post.id %}" method="POST" class='like-form' id='{{ post.id }}'>
+            <form action="{% url 'post like' post.id %}" method="POST"
+                    {% if request.user.is_authenticated %}
+                  class='like-form'
+                    {% endif %}
+                  id='{{ post.id }}'>
                 {% csrf_token %}
                 {#                <input type="hidden" name="post_id" value={{ post.id }}l>#}
                 <button type="submit" class="like-button-{{ post.id }}">

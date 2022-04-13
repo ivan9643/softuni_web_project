@@ -51,9 +51,12 @@ class ProfileDetailsView(views.DetailView):
         likes_count = sum([post.likes.count() for post in posts])
         follower_count = self.object.followers.all().count()
         following_count = self.object.following.all().count()
-        user_profile = Profile.objects.get(user_id=self.request.user.id)
+        if self.request.user.is_authenticated:
+            user_profile = Profile.objects.get(user_id=self.request.user.id)
+            context.update({
+                'user_profile': user_profile,
+            })
         context.update({
-            'user_profile': user_profile,
             'posts_count': posts_count,
             'likes_count': likes_count,
             'is_owner': self.object.user_id == self.request.user.id,
@@ -91,22 +94,3 @@ class ProfileDeleteView(LoginRequiredMixin, views.DeleteView):
             redirect_url = reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
             return HttpResponseRedirect(redirect_url)
         return super().post(request, *args, **kwargs)
-
-
-class ViewFollowingView(views.ListView):
-    model = Profile
-    template_name = 'accounts/view_following.html'
-    context_object_name = 'profiles'
-    paginate_by = 10
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_profile = Profile.objects.get(user_id=self.request.user.id)
-        context.update({
-            'user_profile': user_profile
-        })
-        return context
-
-    def get_queryset(self):
-        user_profile = Profile.objects.get(user_id=self.request.user.id)
-        return Profile.objects.filter(user__in=user_profile.following.all())

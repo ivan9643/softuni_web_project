@@ -22,14 +22,12 @@ class SearchProfileViewTests(TestCase):
             user_id=user.id
         )
         profile.save()
-        users = [user]
-        profiles = [profile]
-        response = self.client.post(reverse('search profiles'), data=
+        response = self.client.get(reverse('search profiles'), data=
         {
             'search_text_input': self.VALID_USERNAME
         })
-        list_expected = list(zip(users, profiles))
-        list_actual = response.context['users_profiles']
+        list_expected = [profile]
+        list_actual = list(response.context['profiles'])
 
         self.assertEqual(list_actual,list_expected)
         self.assertTemplateUsed(response,'main_app/search-profiles.html')

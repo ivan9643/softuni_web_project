@@ -1,16 +1,28 @@
 {% extends 'base.html' %}
 {% load liked_post %}
 {% load static %}
-{% block page_content %}
+{% block nav_items %}
     {% if is_owner %}
-        <a href="{% url 'profile edit' request.user.id %}">Edit Profile</a>
-        <a href="{% url 'profile delete' request.user.id %}">Delete profile</a>
-        <a href="{% url 'view following' %}">View following</a>
-        {#        #ask for password#}
-    {% else %}
-        <form action="{% url 'follow' profile.user_id %}" method="POST" class='follow-form' id='{{ profile.user_id }}'>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'view following' %}">View following</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile edit' request.user.id %}">Edit Profile</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile delete' request.user.id %}">Delete profile</a>
+        </li>
+    {% endif %}
+{% endblock %}
+{% block page_content %}
+    {% if not is_owner %}
+        <form action="{% url 'follow' profile.user_id %}" method="POST"
+                {% if request.user.is_authenticated %}
+              class='follow-form'
+                {% endif %}
+              id='{{ profile.user_id }}'>
             {% csrf_token %}
-            <input type="hidden" name="user_id" value={{ profile.user_id }}>
+{#            <input type="hidden" name="user_id" value={{ profile.user_id }}>#}
 
             <button type="submit" class="follow-button-{{ profile.user_id }}">
                 {% if user_profile not in profile.followers.all %}
@@ -60,9 +72,13 @@
             <p>Likes: </p>
             <p class="like-count-{{ post.id }}">{{ post.likes.count }}</p>
             <p>Published on: {{ post.publication_date }}</p>
-            <form action="{% url 'post like' post.id %}" method="POST" class='like-form' id='{{ post.id }}'>
+            <form action="{% url 'post like' post.id %}" method="POST"
+                    {% if request.user.is_authenticated %}
+                  class='like-form'
+                    {% endif %}
+                  id='{{ post.id }}'>
                 {% csrf_token %}
-                <input type="hidden" name="post_id" value={{ post.id }}l>
+{#                <input type="hidden" name="post_id" value={{ post.id }}l>#}
 
                 <button type="submit" class="like-button-{{ post.id }}">
                     {% if user_profile not in post.likes.all %}

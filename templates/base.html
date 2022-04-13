@@ -5,17 +5,65 @@
     <meta charset="UTF-8">
     <title>App</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
 </head>
 <body>
-<a href="{% url 'home' %}">Home</a>
-{% if request.user.is_authenticated %}
-    <a href="{% url 'post create' %}">Post something</a>
-    <a href="{% url 'profile details' request.user.id %}">Profile details</a>
-    <a href="{% url 'logout' %}">Log out</a>
-{% else %}
-    <a href="{% url 'login' %}">Log in</a>
-    <a href="{% url 'register' %}">Sign up</a>
-{% endif %}
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">Home</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav me-auto">
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'post create' %}">Post something</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'profile details' request.user.id %}">Profile</a>
+                    </li>
+                {% endif %}
+                {% block nav_items %}
+                {% endblock %}
+            </ul>
+            <ul class="navbar-nav m-xxl-auto">
+                <li class="nav-item">
+                    <form method="get" action="{% url 'search profiles' %}" class="d-flex me-auto">
+                        {% csrf_token %}
+                        <input type="search" placeholder="Search a profile" name="search_text_input"
+                               class="form-control me-2">
+                        <div>
+                            <button class="btn btn-primary" style="width: 100px; line-height: 10px" type="submit"
+                                    name="search">Search
+                            </button>
+                            <button class="btn btn-primary"
+                                    style="width: 100px; line-height: 10px; white-space: nowrap;" type="submit"
+                                    name="show_all">Show all
+                            </button>
+                        </div>
+                    </form>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    {% if request.user.is_authenticated %}
+                        <a class="nav-link" href="{% url 'logout' %}">Log out</a>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Log in</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Sign up</a>
+                        </li>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 <br><br>
 {% block page_content %}
 {% endblock %}
