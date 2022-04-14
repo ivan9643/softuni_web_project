@@ -1,0 +1,51 @@
+.image {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.small_image {
+    max-width: 50px;
+    max-height: 50px;
+}
+
+.post {
+    border-style: inset;
+    border-color: lightgreen;
+}
+
+.profile {
+    border-style: inset;
+    border-color: deepskyblue;
+}
+
+.delete_button {
+    background-color: orangered;
+    float: left;
+}
+
+.delete_button:hover {
+    background-color: darkorange;
+}
+
+.go_back {
+    background-color: deepskyblue;
+}
+
+.go_back:hover {
+    background-color: lightskyblue;
+}
+
+.profile_picture {
+    max-width: 25px;
+    max-height: 25px;
+}
+
+.paginator {
+    font-size: x-large;
+    text-align: center;
+}
+
+.current_page {
+    font-weight: 900;
+    color: darkslategrey;
+}
