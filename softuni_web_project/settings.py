@@ -44,6 +44,7 @@ DJANGO_APPS = (
 
 THIRD_PARTY_APPS = (
     'crispy_forms',
+    'whitenoise.runserver_nostatic',
 )
 
 CUSTOM_APPS = (
@@ -98,8 +99,9 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-# import dj_database_url
-#
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 # DATABASES['default'] = dj_database_url.config(conn_max_age=None)
 
 # Password validation
@@ -139,7 +141,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles'),
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media'),
 MEDIA_URL = '/media/'
 
 # Default primary key field type
