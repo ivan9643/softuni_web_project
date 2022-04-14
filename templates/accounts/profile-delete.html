@@ -1,10 +1,56 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block page_content %}
-    <form method="post" action="{% url 'profile delete' request.user.id %}">
-        {% csrf_token %}
-        {{ form }}
-        <h4>Are you sure, you want to delete your profile?</h4>
-        <button class="delete_button" type="submit">Yes, delete</button>
-        <button class="go_back" type="submit" name="go_back_button">No, go back</button>
-    </form>
+    <h4 class="text-center mb-3">Are you sure, you want to delete your profile?</h4>
+    <div class="card mb-3 m-2" style="max-width: fit-content">
+        <div class="row no-gutters">
+            <div class="col-sm-4" style="max-width: 350px">
+                {% if profile.picture %}
+                    <img class="card-img" src="{{ profile.picture.url }}">
+                {% else %}
+                    <img class="card-img" src="{% static 'images/no_profile_picture.png' %}">
+                {% endif %}
+            </div>
+            <div class="col-sm-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile.user.username }}</h5>
+                    {% if profile.first_name and profile.last_name %}
+                        <p class="card-text">Name: {{ profile.full_name }}</p>
+                    {% elif profile.first_name %}
+                        <p class="card-text">First name: {{ profile.first_name }}</p>
+                    {% elif profile.last_name %}
+                        <p class="card-text">Last name: {{ profile.last_name }}</p>
+                    {% endif %}
+                    {% if profile.date_of_birth %}
+                        <p class="card-text">Date of birth: {{ profile.date_of_birth }}</p>
+                    {% endif %}
+                    {% if profile.email %}
+                        <p class="card-text">Email: {{ profile.email }}</p>
+                    {% endif %}
+                    {% if profile.country %}
+                        <p class="card-text">Country: {{ profile.country.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-sm-auto">
+                <div class="card-body">
+                    <p class="card-text">Gender: {{ profile.gender }}</p>
+                    <p class="card-text">Posts: {{ posts_count }}</p>
+                    <p class="card-text">Likes: {{ likes_count }}</p>
+                    <p class="card-text">Followers: {{ follower_count }}</p>
+                    <p class="card-text">Following: {{ following_count }}<p>
+                </div>
+            </div>
+        </div>
+        {% if profile.bio %}
+            <p class="m-2 card-text">Bio: {{ profile.bio }}</p>
+        {% endif %}
+        <div>
+            <form method="post" action="{% url 'profile delete' request.user.id %}">
+                {% csrf_token %}
+                <button class="btn btn-danger m-3" type="submit">Delete</button>
+                <button class="btn btn-dark" type="submit" name="go_back_button">Back</button>
+            </form>
+        </div>
+    </div>
 {% endblock %}

@@ -3,43 +3,53 @@
 {% block page_content %}
     {% if not posts %}
         {% if user_profile.following.all %}
-            <h4>It looks like the people you follow haven't posted anything :(</h4>
+            <h1 class="text-center">It looks like the people you follow haven't posted anything :(</h1>
         {% else %}
-            <h4>It looks like you aren't following anyone :(</h4>
+            <h1 class="text-center">It looks like you aren't following anyone :(</h1>
         {% endif %}
     {% endif %}
+    <div class="row justify-content-center">
     {% for post in posts %}
-        <div class="post">
-            {% if post.profile.picture %}
-                <img class="profile_picture" src="{{ post.profile.picture.url }}">
-            {% else %}
-                <img class="profile_picture" src="{% static 'images/no_profile_picture.png' %}">
-            {% endif %}
-            <h4><a href="{% url 'profile details' post.profile.user_id %}">{{ post.profile.user.username }}</a></h4>
-            <p>{{ post.caption }}</p>
-            {% if post.photo %}
-                <img class="image" src="{{ post.photo.url }}">
-            {% endif %}
-            <p>Likes: </p>
-            <p class="like-count-{{ post.id }}">{{ post.likes.count }}</p>
-            <p>Published on: {{ post.publication_date }}</p>
-            <form action="{% url 'post like' post.id %}" method="POST"
-                    {% if request.user.is_authenticated %}
-                  class='like-form'
-                    {% endif %}
-                  id='{{ post.id }}'>
-                {% csrf_token %}
-                {#                <input type="hidden" name="post_id" value={{ post.id }}l>#}
-                <button type="submit" class="like-button-{{ post.id }}">
-                    {% if user_profile not in post.likes.all %}
-                        Like
-                    {% else %}
-                        Unlike
-                    {% endif %}
-                </button>
-            </form>
-        </div>
-    {% endfor %}
+            <div class="col-auto">
+                <div class="card mb-4" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title"><a
+                                href="{% url 'profile details' post.profile.user_id %}">{{ post.profile.user.username }}</a>
+                        </h5>
+                        <p class="card-text">{{ post.caption }}</p>
+
+                        {% if post.photo %}
+                            <img class="card-img mb-3" src="{{ post.photo.url }}">
+                        {% endif %}
+                        <p class="card-text">
+                            {% for hashtag in post.hashtags.all %}
+                                {{ hashtag.name }}
+                            {% endfor %}
+                        </p>
+                        <p class="card-text" style="float: left">Likes:&nbsp;</p>
+                        <p class="card-text like-count-{{ post.id }}" style="float: left">{{ post.likes.count }}</p>
+
+                        <form action="{% url 'post like' post.id %}" method="POST"
+                                {% if request.user.is_authenticated %}
+                              class='like-form'
+                                {% endif %}
+                              id='{{ post.id }}'>
+                            {% csrf_token %}
+                            {#<input type="hidden" name="user_id" value={{ profile.user_id }}>#}
+                            <button type="submit" class="btn btn-info float-end mb-3 like-button-{{ post.id }}">
+                                {% if user_profile not in post.likes.all %}
+                                    Like
+                                {% else %}
+                                    Unlike
+                                {% endif %}
+                            </button>
+                        </form>
+                        <p class="card-text float-start">{{ post.publication_date }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
     {% if is_paginated %}
         <div class="paginator">
             {% if page_obj.has_previous %}

@@ -22,7 +22,7 @@
                         <a class="nav-link" href="{% url 'post create' %}">Post something</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile details' request.user.id %}">Profile</a>
+                        <a class="nav-link" href="{% url 'profile details' request.user.id %}">Profile details</a>
                     </li>
                 {% endif %}
                 {% block nav_items %}
@@ -32,7 +32,23 @@
                 <li class="nav-item">
                     <form method="get" action="{% url 'search profiles' %}" class="d-flex me-auto">
                         {% csrf_token %}
-                        <input type="search" placeholder="Search a profile" name="search_text_input"
+                        <input type="search" placeholder="Search profiles" name="search_text_input"
+                               class="form-control me-2">
+                        <div>
+                            <button class="btn btn-primary" style="width: 100px; line-height: 10px" type="submit"
+                                    name="search">Search
+                            </button>
+                            <button class="btn btn-primary"
+                                    style="width: 100px; line-height: 10px; white-space: nowrap;" type="submit"
+                                    name="show_all">Show all
+                            </button>
+                        </div>
+                    </form>
+                </li>
+                <li class="nav-item">
+                    <form method="get" action="{% url 'search hashtags' %}" class="d-flex me-auto">
+                        {% csrf_token %}
+                        <input type="search" placeholder="Search posts by hashtag" name="search_text_input"
                                class="form-control me-2">
                         <div>
                             <button class="btn btn-primary" style="width: 100px; line-height: 10px" type="submit"

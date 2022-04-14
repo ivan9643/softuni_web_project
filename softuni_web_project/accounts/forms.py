@@ -4,6 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm, UsernameField
 from django.core.exceptions import ValidationError
 
 from softuni_web_project.accounts.models import Profile
+from softuni_web_project.accounts.models import Country
 
 UserModel = get_user_model()
 
@@ -42,7 +43,7 @@ class RegisterForm(auth_forms.UserCreationForm):
         widget=forms.Textarea(
             attrs={
                 'placeholder': 'Enter bio',
-                'rows': 5,
+                'style': 'height: 95px;'
             }
         ),
         required=False,
@@ -58,6 +59,15 @@ class RegisterForm(auth_forms.UserCreationForm):
     gender = forms.ChoiceField(
         choices=Profile.GENDERS,
         initial='Do not show',
+    )
+
+    country = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Enter country name'
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
@@ -77,6 +87,15 @@ class RegisterForm(auth_forms.UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
+        country_name = self.cleaned_data['country']
+        country = None
+        try:
+            country = Country.objects.get(name=country_name)
+        except Country.DoesNotExist:
+            country = Country(
+                name=country_name
+            )
+            country.save()
         profile = Profile(
             first_name=self.cleaned_data['first_name'],
             last_name=self.cleaned_data['last_name'],
@@ -85,7 +104,8 @@ class RegisterForm(auth_forms.UserCreationForm):
             bio=self.cleaned_data['bio'],
             email=self.cleaned_data['email'],
             gender=self.cleaned_data['gender'],
-            user=user
+            user=user,
+            country=country
         )
         user.save()
         if commit:
@@ -119,12 +139,44 @@ class LoginForm(AuthenticationForm):
 
 
 class ProfileEditForm(forms.ModelForm):
+    country = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Enter country name'
+            }
+        )
+    )
+
+    gender = forms.ChoiceField(
+        required=True,
+        choices=Profile.GENDERS
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        profile = super().save(commit=False)
+        self.initial['country'] = profile.country.name
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        country_name = self.cleaned_data['country']
+        country = None
+        try:
+            country = Country.objects.get(name=country_name)
+        except Country.DoesNotExist:
+            country = Country(
+                name=country_name
+            )
+            country.save()
+        profile.country = country
+        if commit:
+            profile.save()
+        return profile
 
     class Meta:
         model = Profile
-        exclude = ('user', 'followers', 'following')
+        exclude = ('user', 'followers', 'following','country')
         widgets = {
             'first_name': forms.TextInput(
                 attrs={
@@ -144,7 +196,7 @@ class ProfileEditForm(forms.ModelForm):
             'bio': forms.Textarea(
                 attrs={
                     'placeholder': 'Enter bio',
-                    'rows': 5,
+                    'style': 'height: 154px;',
                 }
             ),
             'gender': forms.Select(

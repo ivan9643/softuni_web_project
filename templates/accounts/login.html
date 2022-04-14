@@ -1,10 +1,21 @@
 {% extends 'base.html' %}
+{% load crispy_forms_filters %}
 {% block page_content %}
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-    <h4>Don't have an account? <a href="{% url 'register' %}">Sing up</a></h4>
-    <h4>Or browse as a <a href="{% url 'home' %}">guest</a></h4>
+    <div class=" d-flex justify-content-center">
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="row">
+                <div class="col-auto" style="width: 400px;">
+                    {{ form.username|as_crispy_field }}
+                </div>
+                <div class="col-auto">
+                    {{ form.password|as_crispy_field }}
+                </div>
+            </div>
+            <button type="submit" class="mt-2 mb-2 btn btn-success">Login</button>
+            <h4>Don't have an account? <a href="{% url 'register' %}">Sing up</a></h4>
+            <h4>Or browse as a <a href="{% url 'home' %}">guest</a></h4>
+        </form>
+    </div>
 {% endblock %}

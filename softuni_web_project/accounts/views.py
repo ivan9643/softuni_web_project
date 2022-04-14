@@ -94,3 +94,18 @@ class ProfileDeleteView(LoginRequiredMixin, views.DeleteView):
             redirect_url = reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
             return HttpResponseRedirect(redirect_url)
         return super().post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        posts = Post.objects.filter(profile_id=self.object.user_id).order_by('-publication_date')
+        posts_count = len(posts)
+        likes_count = sum([post.likes.count() for post in posts])
+        follower_count = self.object.followers.all().count()
+        following_count = self.object.following.all().count()
+        context.update({
+            'posts_count': posts_count,
+            'likes_count': likes_count,
+            'follower_count': follower_count,
+            'following_count': following_count,
+        })
+        return context

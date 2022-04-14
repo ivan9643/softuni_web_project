@@ -1,84 +1,62 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block page_content %}
-    <h1 class="mb-3" style="text-align: center">
-        {% if not search and not show_all %}
-            You didn't search for anything. :(
-        {% else %}
-            {% if profiles %}
-                {% if search %}
-                    Showing results for "{{ search }}"
-                {% else %}
-                    Showing all profiles
-                {% endif %}
-                </h1>
-                <div class="row mb-lg-4 justify-content-center">
-                    {% for profile in profiles %}
-                        <div class="col-auto">
-                            <div class="card" style="width: 18rem;">
-                                <img class="card-img-top" src="
+    {% if not search and not show_all %}
+        <h1 class="mb-4 text-center">You didn't search for anything. :(</h1>
+    {% else %}
+        {% if profiles %}
+            {% if search %}
+                <h1 class="mb-4 text-center">Showing results for "{{ search }}"</h1>
+            {% else %}
+                <h1 class="mb-4 text-center">Showing all profiles</h1>
+            {% endif %}
+            <div class="row mb-lg-4 justify-content-center">
+                {% for profile in profiles %}
+                    <div class="col-auto">
+                        <div class="card mb-4" style="width: 18rem;">
+                            <img class="card-img-top" src="
                         {% if profile.picture %}
                         {{ profile.picture.url }}
                         {% else %}
                         {% static 'images/no_profile_picture.png' %}
                         {% endif %}
                         " alt="Card image cap">
-                                <div class="card-body">
-                                    <h5 class="card-title"><a
-                                            href="{% url 'profile details' profile.user_id %}">{{ profile.user.username }}</a>
-                                    </h5>
-                                    {% if profile.first_name and profile.last_name %}
-                                        <p class="card-text">Name: {{ profile.full_name }}</p>
-                                    {% elif profile.first_name %}
-                                        <p class="card-text">First name: {{ profile.first_name }}</p>
-                                    {% elif profile.last_name %}
-                                        <p class="card-text">Last name: {{ profile.last_name }}</p>
-                                    {% endif %}
-                                    <form action="{% url 'follow' profile.user_id %}" method="POST"
-                                            {% if request.user.is_authenticated %}
-                                          class='follow-form'
-                                            {% endif %}
-                                          id='{{ profile.user_id }}'>
-                                        {% csrf_token %}
-                                        {#<input type="hidden" name="user_id" value={{ profile.user_id }}>#}
-                                        <button type="submit"
-                                                class="btn btn-primary follow-button-{{ profile.user_id }}">
-                                            {% if user_profile not in profile.followers.all %}
-                                                Follow
-                                            {% else %}
-                                                Unfollow
-                                            {% endif %}
-                                        </button>
-                                    </form>
-                                </div>
+                            <div class="card-body">
+                                <h5 class="card-title"><a
+                                        href="{% url 'profile details' profile.user_id %}">{{ profile.user.username }}</a>
+                                </h5>
+                                {% if profile.first_name and profile.last_name %}
+                                    <p class="card-text">Name: {{ profile.full_name }}</p>
+                                {% elif profile.first_name %}
+                                    <p class="card-text">First name: {{ profile.first_name }}</p>
+                                {% elif profile.last_name %}
+                                    <p class="card-text">Last name: {{ profile.last_name }}</p>
+                                {% endif %}
+                                <form action="{% url 'follow' profile.user_id %}" method="POST"
+                                        {% if request.user.is_authenticated %}
+                                      class='follow-form'
+                                        {% endif %}
+                                      id='{{ profile.user_id }}'>
+                                    {% csrf_token %}
+                                    {#<input type="hidden" name="user_id" value={{ profile.user_id }}>#}
+                                    <button type="submit"
+                                            class="btn btn-secondary follow-button-{{ profile.user_id }}"
+                                            style="width: 90px">
+                                        {% if user_profile not in profile.followers.all %}
+                                            Follow
+                                        {% else %}
+                                            Unfollow
+                                        {% endif %}
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <h1>No results for "{{ search }}"</h1>
-            {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <h1 class="text-center">No results for "{{ search }}" :(</h1>
         {% endif %}
-    {% if is_paginated %}
-        <div class="paginator">
-            {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
-            {% else %}
-                <a><span>&laquo;</span></a>
-            {% endif %}
-            {% for i in paginator.page_range %}
-                {% if page_obj.number == i %}
-                    <a class="current_page"><span>{{ i }} </span></a>
-                {% else %}
-                    <a href="?page={{ i }}">{{ i }}</a>
-                {% endif %}
-            {% endfor %}
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">&raquo;</a>
-            {% else %}
-                <a><span>&raquo;</span></a>
-            {% endif %}
-        </div>
     {% endif %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script src="{% static 'js/dynamic_like_and_follow_script.js' %}"></script>

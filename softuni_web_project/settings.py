@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from django.urls import reverse_lazy
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-54@)d!x$3zfpr8tzwr+t)9^v3&o=+ub9gzm26$2rzis+up^@lb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -43,7 +42,9 @@ DJANGO_APPS = (
     'django.contrib.staticfiles',
 )
 
-THIRD_PARTY_APPS = ()
+THIRD_PARTY_APPS = (
+    'crispy_forms',
+)
 
 CUSTOM_APPS = (
     'softuni_web_project.main_app',
@@ -97,8 +98,8 @@ DATABASES = {
     }
 }
 # import dj_database_url
-#
-# DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+# 
+# DATABASES['default'] = dj_database_url.config(conn_max_age=None)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -152,3 +153,5 @@ LOGIN_REDIRECT_URL = reverse_lazy('home')
 LOGOUT_REDIRECT_URL = reverse_lazy('unauthenticated user page')
 
 CSRF_FAILURE_VIEW = 'softuni_web_project.main_app.views.csrf_failure'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

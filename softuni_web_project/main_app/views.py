@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.db.models import Count
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
@@ -26,7 +28,7 @@ class HomeView(views.ListView):
     model = Post
     template_name = 'main_app/home.html'
     context_object_name = 'posts'
-    paginate_by = 2
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -68,6 +70,12 @@ class PostEditView(LoginRequiredMixin, views.UpdateView):
     def get_success_url(self):
         return reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
 
+    def post(self, request, *args, **kwargs):
+        if 'go_back_button' in request.POST:
+            redirect_url = reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
+            return HttpResponseRedirect(redirect_url)
+        return super().post(request, *args, **kwargs)
+
 
 class PostDeleteView(LoginRequiredMixin, views.DeleteView):
     model = Post
@@ -79,12 +87,19 @@ class PostDeleteView(LoginRequiredMixin, views.DeleteView):
     def get_success_url(self):
         return reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
 
+    def post(self, request, *args, **kwargs):
+        if 'go_back_button' in request.POST:
+            redirect_url = reverse_lazy('profile details', kwargs={'pk': self.request.user.id})
+            return HttpResponseRedirect(redirect_url)
+        return super().post(request, *args, **kwargs)
+
 
 class SearchProfilesView(views.ListView):
     template_name = 'main_app/search-profiles.html'
     context_object_name = 'profiles'
 
     def get_queryset(self):
+        users = []
         if 'search_text_input' in self.request.GET:
             search = self.request.GET['search_text_input']
             users = UserModel.objects.filter(username__contains=search).exclude(
@@ -101,6 +116,38 @@ class SearchProfilesView(views.ListView):
             context['search'] = search
         elif 'show_all' in self.request.GET:
             context['show_all'] = True
+        if self.request.user.is_authenticated:
+            user_profile = Profile.objects.get(user=self.request.user)
+            context['user_profile'] = user_profile
+        return context
+
+
+class SearchHashtagsView(views.ListView):
+    template_name = 'main_app/search-hashtags.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        posts = []
+        if 'search' in self.request.GET:
+            search = self.request.GET['search_text_input']
+            posts = Post.objects.filter(hashtags__name__contains=search).distinct()\
+                .annotate(likes_count=Count('likes')) \
+                .order_by('-likes_count')
+        elif 'show_all' in self.request.GET:
+            posts = Post.objects.all().annotate(likes_count=Count('likes')) \
+                .order_by('-likes_count')
+        return posts
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        if 'search' in self.request.GET:
+            search = self.request.GET['search_text_input']
+            context['search'] = search
+        elif 'show_all' in self.request.GET:
+            context['show_all'] = True
+        if self.request.user.is_authenticated:
+            user_profile = Profile.objects.get(user=self.request.user)
+            context['user_profile'] = user_profile
         return context
 
 

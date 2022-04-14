@@ -1,6 +1,6 @@
 from django import forms
 
-from softuni_web_project.main_app.models import Post
+from softuni_web_project.main_app.models import Post, Hashtag
 
 
 class PostCreateForm(forms.ModelForm):
@@ -12,35 +12,57 @@ class PostCreateForm(forms.ModelForm):
         max_length=200,
     )
 
-    photo = forms.ImageField(
+    hashtags = forms.CharField(
         required=False,
+        widget=forms.Textarea(
+            attrs={
+                'rows': 3
+            }
+        )
     )
 
     def save(self, commit=True):
         post = super().save(commit=False)
+        hashtag_names_str = self.cleaned_data['hashtags'].lower()
+        start_index = -1
+        hashtags = []
+        saved = True
+        for i, ch in enumerate(hashtag_names_str):
+            if i == len(hashtag_names_str) - 1:
+                if not saved:
+                    hashtag_name = hashtag_names_str[start_index:i + 1]
+                    hashtag = None
+                    try:
+                        hashtag = Hashtag.objects.get(name=hashtag_name)
+                    except Hashtag.DoesNotExist:
+                        hashtag = Hashtag(
+                            name=hashtag_name,
+                        )
+                        hashtag.save()
+                    hashtags.append(hashtag)
+            if not ch.isalpha() and not ch.isdigit() and not ch == '_':
+                if not saved:
+                    hashtag_name = hashtag_names_str[start_index:i]
+                    if hashtag_name != '#':
+                        hashtag = None
+                        try:
+                            hashtag = Hashtag.objects.get(name=hashtag_name)
+                        except Hashtag.DoesNotExist:
+                            hashtag = Hashtag(
+                                name=hashtag_name,
+                            )
+                            hashtag.save()
+                        hashtags.append(hashtag)
+                    saved = True
+            if ch == '#':
+                start_index = i
+                saved = False
         post.profile = self.profile
         if commit:
             post.save()
+            for hashtag in hashtags:
+                post.hashtags.add(hashtag)
         return post
-
-    # hashtags = forms.
-    # make hashtags in post.save method
-    #     def save(self, commit=True):
-    #         user = super().save(commit=False)
-    #         profile = Profile(
-    #             first_name=self.cleaned_data['first_name'],
-    #             last_name=self.cleaned_data['last_name'],
-    #             picture=self.cleaned_data['picture'],
-    #             date_of_birth=self.cleaned_data['date_of_birth'],
-    #             bio=self.cleaned_data['bio'],
-    #             email=self.cleaned_data['email'],
-    #             gender=self.cleaned_data['gender'],
-    #             user=user
-    #         )
-    #         user.save()
-    #         if commit:
-    #             profile.save()
-    #         return user
 
     class Meta:
         model = Post
@@ -56,16 +78,64 @@ class PostEditForm(forms.ModelForm):
             }
         )
     )
+    hashtags = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                'rows': 3
+            }
+        ),
+    )
 
-    # photo = forms.ImageField(
-    #     required=False,
-    #     disabled=True,
-    # )
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+        post = super().save(commit=False)
+        hashtags_names = [hashtag.name for hashtag in post.hashtags.all()]
+        hashtags_str = ' '.join(hashtags_names)
+        self.fields['hashtags'].initial = hashtags_str
 
     def save(self, commit=True):
         post = super().save(commit=False)
+        hashtag_names_str = self.cleaned_data['hashtags'].lower()
+        start_index = -1
+        hashtags = []
+        saved = True
+        for i, ch in enumerate(hashtag_names_str):
+            if i == len(hashtag_names_str) - 1:
+                if not saved:
+                    hashtag_name = hashtag_names_str[start_index:i + 1]
+                    hashtag = None
+                    try:
+                        hashtag = Hashtag.objects.get(name=hashtag_name)
+                    except Hashtag.DoesNotExist:
+                        hashtag = Hashtag(
+                            name=hashtag_name,
+                        )
+                        hashtag.save()
+                    hashtags.append(hashtag)
+            if not ch.isalpha() and not ch.isdigit() and not ch == '_':
+                if not saved:
+                    hashtag_name = hashtag_names_str[start_index:i]
+                    if hashtag_name != '#':
+                        hashtag = None
+                        try:
+                            hashtag = Hashtag.objects.get(name=hashtag_name)
+                        except Hashtag.DoesNotExist:
+                            hashtag = Hashtag(
+                                name=hashtag_name,
+                            )
+                            hashtag.save()
+                        hashtags.append(hashtag)
+                    saved = True
+            if ch == '#':
+                start_index = i
+                saved = False
         if commit:
             post.save()
+            post.hashtags.clear()
+            for hashtag in hashtags:
+                post.hashtags.add(hashtag)
         return post
 
     class Meta:

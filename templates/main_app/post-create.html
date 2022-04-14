@@ -1,8 +1,21 @@
 {% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
 {% block page_content %}
-    <form method="post" action="{% url 'post create' %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Post</button>
-    </form>
+    <div class="d-flex justify-content-center">
+        <form method="post" action="{% url 'post create' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="row">
+                <div class="col-auto" style="width: 400px;">
+                    {{ form.caption|as_crispy_field }}
+                    {{ form.photo|as_crispy_field }}
+                </div>
+                <div class="col-auto">
+                    {{ form.hashtags|as_crispy_field }}
+                </div>
+            </div>
+            <button type="submit" class="mt-2 btn btn-success">Post</button>
+        </form>
+    </div>
 {% endblock %}

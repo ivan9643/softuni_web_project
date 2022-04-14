@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_content %}
+    {% if not search and not show_all %}
+        <h1 class="mb-4 text-center">You didn't search for anything. :(</h1>
+    {% else %}
+        {% if posts %}
+            {% if search %}
+                <h1 class="mb-4 text-center">Showing results for "{{ search }}"</h1>
+            {% else %}
+                <h1 class="mb-4 text-center">Showing all posts</h1>
+            {% endif %}
+            <div class="row justify-content-center">
+                {% for post in posts %}
+                    <div class="col-auto">
+                        <div class="card mb-4" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title"><a
+                                        href="{% url 'profile details' post.profile.user_id %}">{{ post.profile.user.username }}</a>
+                                </h5>
+                                <p class="card-text">{{ post.caption }}</p>
+
+                                {% if post.photo %}
+                                    <img class="card-img mb-3" src="{{ post.photo.url }}">
+                                {% endif %}
+                                <p class="card-text">
+                                    {% for hashtag in post.hashtags.all %}
+                                        {{ hashtag.name }}
+                                    {% endfor %}
+                                </p>
+                                <p class="card-text" style="float: left">Likes:&nbsp;</p>
+                                <p class="card-text like-count-{{ post.id }}"
+                                   style="float: left">{{ post.likes.count }}</p>
+
+                                <form action="{% url 'post like' post.id %}" method="POST"
+                                        {% if request.user.is_authenticated %}
+                                      class='like-form'
+                                        {% endif %}
+                                      id='{{ post.id }}'>
+                                    {% csrf_token %}
+                                    {#<input type="hidden" name="user_id" value={{ profile.user_id }}>#}
+                                    <button type="submit" class="btn btn-info float-end mb-3 like-button-{{ post.id }}">
+                                        {% if user_profile not in post.likes.all %}
+                                            Like
+                                        {% else %}
+                                            Unlike
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                <p class="card-text float-start">{{ post.publication_date }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <h1 class="mb-4 text-center">No results for "{{ search }}" :(</h1>
+        {% endif %}
+    {% endif %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="{% static 'js/dynamic_like_and_follow_script.js' %}"></script>
+{% endblock %}

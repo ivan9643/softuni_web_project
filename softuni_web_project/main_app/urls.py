@@ -2,7 +2,8 @@ from django.urls import path
 
 from softuni_web_project.main_app.views import UnauthenticatedUserView, \
     HomeView, PostCreateView, PostEditView, PostDeleteView, \
-    follow_view, post_like_view, ViewFollowingView, SearchProfilesView
+    follow_view, post_like_view, ViewFollowingView, SearchProfilesView, \
+    SearchHashtagsView
 
 urlpatterns = (
     path('', UnauthenticatedUserView.as_view(), name='unauthenticated user page'),
@@ -13,5 +14,6 @@ urlpatterns = (
     path('search/profiles', SearchProfilesView.as_view(), name='search profiles'),
     path('follow/<int:pk>', follow_view, name='follow'),
     path('post/like/<int:pk>', post_like_view, name='post like'),
-    path('view/following', ViewFollowingView.as_view(), name='view following')
+    path('view/following', ViewFollowingView.as_view(), name='view following'),
+    path('search/hashtags', SearchHashtagsView.as_view(), name='search hashtags'),
 )

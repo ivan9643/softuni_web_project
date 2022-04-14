@@ -1,11 +1,24 @@
 {% extends 'base.html' %}
+{% load crispy_forms_filters %}
 {% block page_content %}
-    <form method="post" action="{% url 'post edit' post.id %}">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Save changes</button>
-    </form>
-    {% if post.photo %}
-        <img class="image" src="{{ post.photo.url }}">
-    {% endif %}
+
+    <div class="d-flex justify-content-center">
+        <form method="post" action="{% url 'post edit' post.id %}">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="row">
+                <div class="col-auto" style="width: 400px;">
+                    {% if post.photo %}
+                        <img class="card-img" style="border-radius: 15px" src="{{ post.photo.url }}">
+                    {% endif %}
+                </div>
+                <div class="col-auto" style="width: 300px;">
+                    {{ form.caption|as_crispy_field }}
+                    {{ form.hashtags|as_crispy_field }}
+                    <button type="submit" class="mt-2 btn btn-success">Save changes</button>
+                    <button class="go_back mt-2 btn btn-dark" type="submit" name="go_back_button">Back</button>
+                </div>
+            </div>
+        </form>
+    </div>
 {% endblock %}

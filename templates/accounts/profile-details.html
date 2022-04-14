@@ -15,85 +15,124 @@
     {% endif %}
 {% endblock %}
 {% block page_content %}
-    {% if not is_owner %}
-        <form action="{% url 'follow' profile.user_id %}" method="POST"
-                {% if request.user.is_authenticated %}
-              class='follow-form'
-                {% endif %}
-              id='{{ profile.user_id }}'>
-            {% csrf_token %}
-{#            <input type="hidden" name="user_id" value={{ profile.user_id }}>#}
-
-            <button type="submit" class="follow-button-{{ profile.user_id }}">
-                {% if user_profile not in profile.followers.all %}
-                    Follow
+    <div class="card mb-3 m-2" style="max-width: fit-content">
+        <div class="row no-gutters">
+            <div class="col-sm-4" style="max-width: 350px">
+                {% if profile.picture %}
+                    <img class="card-img" src="{{ profile.picture.url }}">
                 {% else %}
-                    Unfollow
+                    <img class="card-img" src="{% static 'images/no_profile_picture.png' %}">
                 {% endif %}
-            </button>
-        </form>
-    {% endif %}
-    <hr>
-    <h5>Username: {{ profile.user.username }}</h5>
-    {% if profile.picture %}
-        <img class="image" src="{{ profile.picture.url }}">
-    {% else %}
-        <img class="image" src="{% static 'images/no_profile_picture.png' %}">
-    {% endif %}
-    {% if profile.first_name and profile.last_name %}
-        <p>Name: {{ profile.full_name }}</p>
-    {% elif profile.first_name %}
-        <p>First name: {{ profile.first_name }}</p>
-    {% elif profile.last_name %}
-        <p>Last name: {{ profile.last_name }}</p>
-    {% endif %}
-    {% if profile.bio %}
-        <p>Bio: {{ profile.bio }}</p>
-    {% endif %}
-    {% if profile.date_of_birth %}
-        <p>Date of birth: {{ profile.date_of_birth }}</p>
-    {% endif %}
-    {% if profile.email %}
-        <p>Email: {{ profile.email }}</p>
-    {% endif %}
-    <p>Gender: {{ profile.gender }}</p>
-    <p>Posts: {{ posts_count }}</p>
-    <p>Likes: </p>
-    <p class="like-count-total">{{ likes_count }}</p>
-    <p>Followers: <p>
-    <p class="follower-count-{{ profile.user_id }}">{{ follower_count }}</p>
-    <p>Following: {{ following_count }}<p>
-    {% for post in posts %}
-        <div class="post">
-            <h4>{{ post.caption }}</h4>
-            {% if post.photo %}
-                <img class="image" src="{{ post.photo.url }}">
-            {% endif %}
-            <p>Likes: </p>
-            <p class="like-count-{{ post.id }}">{{ post.likes.count }}</p>
-            <p>Published on: {{ post.publication_date }}</p>
-            <form action="{% url 'post like' post.id %}" method="POST"
-                    {% if request.user.is_authenticated %}
-                  class='like-form'
-                    {% endif %}
-                  id='{{ post.id }}'>
-                {% csrf_token %}
-{#                <input type="hidden" name="post_id" value={{ post.id }}l>#}
+            </div>
+            <div class="col-sm-4">
+                <div class="card-body">
+                    {% if not is_owner %}
+                        <form action="{% url 'follow' profile.user_id %}" method="POST"
+                                {% if request.user.is_authenticated %}
+                              class='follow-form'
+                                {% endif %}
+                              id='{{ profile.user_id }}'>
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value={{ profile.user_id }}>
 
-                <button type="submit" class="like-button-{{ post.id }}">
-                    {% if user_profile not in post.likes.all %}
-                        Like
-                    {% else %}
-                        Unlike
+                            <button type="submit" class="btn btn-secondary mb-2 follow-button-{{ profile.user_id }}"
+                                    style="width: 90px">
+                                {% if user_profile not in profile.followers.all %}
+                                    Follow
+                                {% else %}
+                                    Unfollow
+                                {% endif %}
+                            </button>
+                        </form>
                     {% endif %}
-                </button>
-            </form>
-            {% if is_owner %}
-                <a href="{% url 'post edit' post.id %}">Edit post</a>
-                <a href="{% url 'post delete' post.id %}">Delete post</a>
-            {% endif %}
+                    <h5 class="card-title">{{ profile.user.username }}</h5>
+                    {% if profile.first_name and profile.last_name %}
+                        <p class="card-text">Name: {{ profile.full_name }}</p>
+                    {% elif profile.first_name %}
+                        <p class="card-text">First name: {{ profile.first_name }}</p>
+                    {% elif profile.last_name %}
+                        <p class="card-text">Last name: {{ profile.last_name }}</p>
+                    {% endif %}
+                    {% if profile.date_of_birth %}
+                        <p class="card-text">Date of birth: {{ profile.date_of_birth }}</p>
+                    {% endif %}
+                    {% if profile.email %}
+                        <p class="card-text">Email: {{ profile.email }}</p>
+                    {% endif %}
+                    {% if profile.country %}
+                        <p class="card-text">Country: {{ profile.country.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-sm-auto">
+                <div class="card-body">
+                    <p class="card-text">Gender: {{ profile.gender }}</p>
+                    <p class="card-text">Posts: {{ posts_count }}</p>
+                    <p class="card-text" style="float: left">Likes:&nbsp;</p>
+                    <p class="card-text like-count-total">{{ likes_count }}</p>
+                    <p class="card-text" style="float: left">Followers:&nbsp;</p>
+                    <p class="card-text follower-count-{{ profile.user_id }}">{{ follower_count }}</p>
+                    <p class="card-text">Following: {{ following_count }}<p>
+                </div>
+            </div>
         </div>
-    {% endfor %}
+        {% if profile.bio %}
+            <p class="m-2 card-text">Bio: {{ profile.bio }}</p>
+        {% endif %}
+    </div>
+    <div class="row justify-content-start ms-2">
+        {% for post in posts %}
+            <div class="col-auto">
+                <div class="card mb-3" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">{{ post.caption }}</h5>
+
+                        {% if post.photo %}
+                            <img class="card-img mb-3" src="{{ post.photo.url }}">
+                        {% endif %}
+                        <p class="card-text">
+                            {% for hashtag in post.hashtags.all %}
+                                {{ hashtag.name }}
+                            {% endfor %}
+                        </p>
+                        <p class="card-text" style="float: left">Likes:&nbsp;</p>
+                        <p class="card-text like-count-{{ post.id }}" style="float: left">{{ post.likes.count }}</p>
+
+                        <form action="{% url 'post like' post.id %}" method="POST"
+                                {% if request.user.is_authenticated %}
+                              class='like-form'
+                                {% endif %}
+                              id='{{ post.id }}'>
+                            {% csrf_token %}
+                            {#<input type="hidden" name="user_id" value={{ profile.user_id }}>#}
+                            <button type="submit" class="btn btn-info float-end mb-3 like-button-{{ post.id }}">
+                                {% if user_profile not in post.likes.all %}
+                                    Like
+                                {% else %}
+                                    Unlike
+                                {% endif %}
+                            </button>
+                        </form>
+                        <p class="card-text float-start">{{ post.publication_date }}</p>
+                    </div>
+                    {% if is_owner %}
+                        <div>
+                            <form action="{% url 'post edit' post.id %}"
+                                  method="GET">
+                                {% csrf_token %}
+                                <button type="submit" class="float-start btn btn-warning ms-2 mb-2">Edit post</button>
+                            </form>
+                            <form action="{% url 'post delete' post.id %}"
+                                  method="GET">
+                                {% csrf_token %}
+                                <button type="submit" class="float-end btn btn-danger me-2">Delete post</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script src="{% static 'js/dynamic_like_and_follow_script.js' %}"></script>
 {% endblock %}

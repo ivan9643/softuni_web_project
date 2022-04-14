@@ -1,8 +1,24 @@
 {% extends 'base.html' %}
+{% load crispy_forms_filters %}
 {% block page_content %}
-    <form method="post" action="{% url 'post delete' post.id %}">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Delete post</button>
-    </form>
+    <div class="d-flex justify-content-center">
+        <form method="post" action="{% url 'post delete' post.id %}">
+            {% csrf_token %}
+            <div class="card">
+                <div class="card-body" style="width: 400px;">
+                    <h5 class="card-title mb-3">{{ post.caption }}</h5>
+                    {% if post.photo %}
+                        <img class="card-img mb-3" src="{{ post.photo.url }}">
+                    {% endif %}
+                    <p class="card-text" style="float: left">Likes:&nbsp;</p>
+                    <p class="card-text like-count-{{ post.id }}" style="float: left">{{ post.likes.count }}</p>
+                    <p class="card-text float-end">{{ post.publication_date }}</p>
+                </div>
+                <div>
+                    <button type="submit" class="mb-2 btn btn-danger float-start ms-3">Delete</button>
+                    <button class="go_back mb-2 btn btn-dark float-end me-3" type="submit" name="go_back_button">Back</button>
+                </div>
+            </div>
+        </form>
+    </div>
 {% endblock %}

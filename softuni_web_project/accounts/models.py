@@ -38,6 +38,13 @@ class CustomUser(auth_models.AbstractBaseUser, auth_models.PermissionsMixin):
 UserModel = get_user_model()
 
 
+class Country(models.Model):
+    COUNTRY_NAME_MAX_LENGTH = 50
+    name = models.CharField(
+        max_length=COUNTRY_NAME_MAX_LENGTH,
+        unique=True,
+    )
+
 class Profile(models.Model):
     FIRST_NAME_MAX_LENGTH = 30
     FIRST_NAME_MIN_LENGTH = 2
@@ -101,6 +108,13 @@ class Profile(models.Model):
         null=True,
         blank=True,
         default=DO_NOT_SHOW,
+    )
+
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     user = models.OneToOneField(

@@ -1,9 +1,25 @@
 {% extends 'base.html' %}
+{% load crispy_forms_filters %}
 {% block page_content %}
-    <form method="post" action="{% url 'profile edit' request.user.id %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Edit</button>
-        <button class="go_back" type="submit" name="go_back_button">Back</button>
-    </form>
+    <div class="d-flex justify-content-center">
+        <form method="post" action="{% url 'profile edit' request.user.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-auto">
+                    {{ form.first_name|as_crispy_field }}
+                    {{ form.bio|as_crispy_field }}
+                    {{ form.email|as_crispy_field }}
+                </div>
+                <div class="col-auto">
+                    {{ form.last_name|as_crispy_field }}
+                    {{ form.date_of_birth|as_crispy_field }}
+                    {{ form.picture|as_crispy_field }}
+                    {{ form.gender|as_crispy_field }}
+                    {{ form.country|as_crispy_field }}
+                </div>
+            </div>
+            <button type="submit" class="mt-2 btn btn-success">Save changes</button>
+            <button class="go_back mt-2 btn btn-dark" type="submit" name="go_back_button">Back</button>
+        </form>
+    </div>
 {% endblock %}
