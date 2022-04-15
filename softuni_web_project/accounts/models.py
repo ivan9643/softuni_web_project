@@ -44,6 +44,9 @@ class Country(models.Model):
         unique=True,
     )
 
+    def __str__(self):
+        return self.name
+
 
 class Profile(models.Model):
     FIRST_NAME_MAX_LENGTH = 30
