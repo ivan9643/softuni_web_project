@@ -206,7 +206,8 @@ class ProfileEditForm(forms.ModelForm):
     def __init__(self, profile, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.country_name = None
-        self.initial['country'] = profile.country.name
+        if profile.country:
+            self.initial['country'] = profile.country.name
 
     def clean(self):
         self.country_name = self.cleaned_data['country']
