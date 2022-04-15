@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-54@)d!x$3zfpr8tzwr+t)9^v3&o=+ub9gzm26$2rzis+up^@lb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -99,8 +99,8 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-# import dj_database_url
-# db_from_env = dj_database_url.config(conn_max_age=600)
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=None)
 # DATABASES['default'].update(db_from_env)
 
 # DATABASES['default'] = dj_database_url.config(conn_max_age=600)
