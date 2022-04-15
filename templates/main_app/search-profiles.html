@@ -2,7 +2,7 @@
 {% load static %}
 {% block page_content %}
     {% if not search and not show_all %}
-        <h1 class="mb-4 text-center">You didn't search for anything. :(</h1>
+        <h1 class="mb-4 text-center">You didn't search for anything :(</h1>
     {% else %}
         {% if profiles %}
             {% if search %}
@@ -38,10 +38,9 @@
                                         {% endif %}
                                       id='{{ profile.user_id }}'>
                                     {% csrf_token %}
-                                    {#<input type="hidden" name="user_id" value={{ profile.user_id }}>#}
                                     <button type="submit"
                                             class="btn btn-secondary follow-button-{{ profile.user_id }}"
-                                            style="width: 90px">
+                                            style="width: 95px">
                                         {% if user_profile not in profile.followers.all %}
                                             Follow
                                         {% else %}
@@ -54,6 +53,8 @@
                     </div>
                 {% endfor %}
             </div>
+        {% elif not search and show_all %}
+            <h1 class="mb-4 text-center">There are still no other users :(</h1>
         {% else %}
             <h1 class="text-center">No results for "{{ search }}" :(</h1>
         {% endif %}

@@ -25,5 +25,3 @@ urlpatterns = [
     path('',include('softuni_web_project.main_app.urls')),
     path('accounts/',include('softuni_web_project.accounts.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-# handler404=View

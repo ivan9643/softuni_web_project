@@ -1,10 +1,8 @@
+import datetime
+
 from django import forms
 from django.contrib.auth import forms as auth_forms, get_user_model
-from django.contrib.auth.forms import AuthenticationForm, UsernameField
-from django.core.exceptions import ValidationError
-
-from softuni_web_project.accounts.models import Profile
-from softuni_web_project.accounts.models import Country
+from softuni_web_project.accounts.models import Profile, Country
 
 UserModel = get_user_model()
 
@@ -33,17 +31,15 @@ class RegisterForm(auth_forms.UserCreationForm):
     )
     date_of_birth = forms.DateField(
         required=False,
-        widget=forms.DateInput(
-            attrs={
-                'placeholder': 'Enter date of birth'
-            }
-        )
+        widget=forms.SelectDateWidget(
+            years=range(1920, datetime.datetime.now().year + 1)
+        ),
     )
     bio = forms.CharField(
         widget=forms.Textarea(
             attrs={
                 'placeholder': 'Enter bio',
-                'style': 'height: 95px;'
+                'style': 'height: 169px;'
             }
         ),
         required=False,
@@ -72,6 +68,7 @@ class RegisterForm(auth_forms.UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.country_name = None
         self.fields['password1'].widget = forms.PasswordInput(
             attrs={
                 'placeholder': 'Enter password'
@@ -85,15 +82,32 @@ class RegisterForm(auth_forms.UserCreationForm):
         for field_name in ['username', 'password1', 'password2']:
             self.fields[field_name].help_text = None
 
+    def clean(self):
+        self.country_name = self.cleaned_data['country']
+        if not self.country_name.isalpha() and self.country_name:
+            self.add_error('country', 'Country name must contain only letters')
+        first_name = self.cleaned_data['first_name']
+        last_name = self.cleaned_data['last_name']
+        if len(first_name) < 2 and first_name:
+            self.add_error('first_name',
+                           f'Ensure this value has at least {Profile.FIRST_NAME_MIN_LENGTH} characters (it has {len(first_name)}).')
+        if len(last_name) < 2 and last_name:
+            self.add_error('last_name',
+                           f'Ensure this value has at least {Profile.LAST_NAME_MIN_LENGTH} characters (it has {len(last_name)}).')
+        if not first_name.isalpha() and first_name:
+            self.add_error('first_name', 'Value must contain only letters')
+        if not last_name.isalpha() and last_name:
+            self.add_error('last_name', 'Value must contain only letters')
+        return super().clean()
+
     def save(self, commit=True):
         user = super().save(commit=False)
-        country_name = self.cleaned_data['country']
         country = None
         try:
-            country = Country.objects.get(name=country_name)
+            country = Country.objects.get(name=self.country_name)
         except Country.DoesNotExist:
             country = Country(
-                name=country_name
+                name=self.country_name
             )
             country.save()
         profile = Profile(
@@ -124,18 +138,54 @@ class RegisterForm(auth_forms.UserCreationForm):
         }
 
 
-class LoginForm(AuthenticationForm):
+class LoginForm(auth_forms.AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    username = UsernameField(widget=forms.TextInput(attrs={'placeholder': 'Enter username'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Enter password'}))
+    username = auth_forms.UsernameField(
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Enter username'
+            },
+        )
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs=
+            {
+                'placeholder': 'Enter password'
+            }
+        )
+    )
 
     def clean(self):
         username = self.cleaned_data['username']
         if not username == username.lower():
-            raise ValidationError('Username must be lowercase only')
+            self.add_error('username', 'Username must be lowercase only')
         return super(LoginForm, self).clean()
+
+
+class ChangePasswordForm(auth_forms.PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.country_name = None
+        self.fields['old_password'].widget = forms.PasswordInput(
+            attrs={
+                'placeholder': 'Enter old password'
+            }
+        )
+        self.fields['new_password1'].widget = forms.PasswordInput(
+            attrs={
+                'placeholder': 'Enter new password'
+            }
+        )
+        self.fields['new_password2'].widget = forms.PasswordInput(
+            attrs={
+                'placeholder': 'Confirm new password'
+            }
+        )
+        for field_name in ['old_password', 'new_password1', 'new_password2']:
+            self.fields[field_name].help_text = None
 
 
 class ProfileEditForm(forms.ModelForm):
@@ -153,20 +203,25 @@ class ProfileEditForm(forms.ModelForm):
         choices=Profile.GENDERS
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, profile, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        profile = super().save(commit=False)
+        self.country_name = None
         self.initial['country'] = profile.country.name
+
+    def clean(self):
+        self.country_name = self.cleaned_data['country']
+        if not self.country_name.isalpha() and self.country_name:
+            self.add_error('country', 'Country name must contain only letters')
+        return super().clean()
 
     def save(self, commit=True):
         profile = super().save(commit=False)
-        country_name = self.cleaned_data['country']
         country = None
         try:
-            country = Country.objects.get(name=country_name)
+            country = Country.objects.get(name=self.country_name)
         except Country.DoesNotExist:
             country = Country(
-                name=country_name
+                name=self.country_name
             )
             country.save()
         profile.country = country
@@ -176,7 +231,7 @@ class ProfileEditForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        exclude = ('user', 'followers', 'following','country')
+        exclude = ('user', 'followers', 'following', 'country')
         widgets = {
             'first_name': forms.TextInput(
                 attrs={
@@ -196,16 +251,14 @@ class ProfileEditForm(forms.ModelForm):
             'bio': forms.Textarea(
                 attrs={
                     'placeholder': 'Enter bio',
-                    'style': 'height: 154px;',
+                    'style': 'height: 106px;',
                 }
             ),
             'gender': forms.Select(
                 choices=Profile.GENDERS,
             ),
-            'date_of_birth': forms.DateInput(
-                attrs={
-                    # 'min': '1920-01-01',
-                }
+            'date_of_birth': forms.SelectDateWidget(
+                years=range(1920, datetime.datetime.now().year + 1),
             ),
             'following': forms.SelectMultiple(
                 attrs={

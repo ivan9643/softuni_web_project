@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 from softuni_web_project.main_app.models import Post, Hashtag
 
@@ -21,30 +22,28 @@ class PostCreateForm(forms.ModelForm):
         )
     )
 
-    def save(self, commit=True):
-        post = super().save(commit=False)
+    photo = forms.ImageField(
+        required=True,
+    )
+
+    def clean(self):
         hashtag_names_str = self.cleaned_data['hashtags'].lower()
         start_index = -1
-        hashtags = []
+        self.hashtags = []
         saved = True
+        last = 0
         for i, ch in enumerate(hashtag_names_str):
-            if i == len(hashtag_names_str) - 1:
+            if not ch.isalpha() and not ch.isdigit() and not ch == '_' \
+                    or i == len(hashtag_names_str) - 1:
                 if not saved:
-                    hashtag_name = hashtag_names_str[start_index:i + 1]
-                    hashtag = None
-                    try:
-                        hashtag = Hashtag.objects.get(name=hashtag_name)
-                    except Hashtag.DoesNotExist:
-                        hashtag = Hashtag(
-                            name=hashtag_name,
-                        )
-                        hashtag.save()
-                    hashtags.append(hashtag)
-            if not ch.isalpha() and not ch.isdigit() and not ch == '_':
-                if not saved:
-                    hashtag_name = hashtag_names_str[start_index:i]
+                    if i == len(hashtag_names_str) - 1:
+                        last = 1
+                    hashtag_name = hashtag_names_str[start_index:i + last]
                     if hashtag_name != '#':
                         hashtag = None
+                        if len(hashtag_name) > 30:
+                            self.add_error('hashtags', 'Hashtags must be maximum 30 characters long')
+                            break
                         try:
                             hashtag = Hashtag.objects.get(name=hashtag_name)
                         except Hashtag.DoesNotExist:
@@ -52,15 +51,19 @@ class PostCreateForm(forms.ModelForm):
                                 name=hashtag_name,
                             )
                             hashtag.save()
-                        hashtags.append(hashtag)
+                        self.hashtags.append(hashtag)
                     saved = True
             if ch == '#':
                 start_index = i
                 saved = False
+        return super().clean()
+
+    def save(self, commit=True):
+        post = super().save(commit=False)
         post.profile = self.profile
         if commit:
             post.save()
-            for hashtag in hashtags:
+            for hashtag in self.hashtags:
                 post.hashtags.add(hashtag)
         return post
 
@@ -71,7 +74,7 @@ class PostCreateForm(forms.ModelForm):
 
 class PostEditForm(forms.ModelForm):
     caption = forms.CharField(
-        max_length=200,
+        max_length=Post.CAPTION_MAX_LENGTH,
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Enter caption'
@@ -87,38 +90,30 @@ class PostEditForm(forms.ModelForm):
         ),
     )
 
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-
-        post = super().save(commit=False)
+    def __init__(self, post, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         hashtags_names = [hashtag.name for hashtag in post.hashtags.all()]
         hashtags_str = ' '.join(hashtags_names)
         self.fields['hashtags'].initial = hashtags_str
 
-    def save(self, commit=True):
-        post = super().save(commit=False)
+    def clean(self):
         hashtag_names_str = self.cleaned_data['hashtags'].lower()
         start_index = -1
-        hashtags = []
+        self.hashtags = []
         saved = True
+        last = 0
         for i, ch in enumerate(hashtag_names_str):
-            if i == len(hashtag_names_str) - 1:
+            if not ch.isalpha() and not ch.isdigit() and not ch == '_' \
+                    or i == len(hashtag_names_str) - 1:
                 if not saved:
-                    hashtag_name = hashtag_names_str[start_index:i + 1]
-                    hashtag = None
-                    try:
-                        hashtag = Hashtag.objects.get(name=hashtag_name)
-                    except Hashtag.DoesNotExist:
-                        hashtag = Hashtag(
-                            name=hashtag_name,
-                        )
-                        hashtag.save()
-                    hashtags.append(hashtag)
-            if not ch.isalpha() and not ch.isdigit() and not ch == '_':
-                if not saved:
-                    hashtag_name = hashtag_names_str[start_index:i]
+                    if i == len(hashtag_names_str) - 1:
+                        last = 1
+                    hashtag_name = hashtag_names_str[start_index:i + last]
                     if hashtag_name != '#':
                         hashtag = None
+                        if len(hashtag_name) > 30:
+                            self.add_error('hashtags', 'Hashtags must be maximum 30 characters long')
+                            break
                         try:
                             hashtag = Hashtag.objects.get(name=hashtag_name)
                         except Hashtag.DoesNotExist:
@@ -126,29 +121,24 @@ class PostEditForm(forms.ModelForm):
                                 name=hashtag_name,
                             )
                             hashtag.save()
-                        hashtags.append(hashtag)
+                        self.hashtags.append(hashtag)
                     saved = True
             if ch == '#':
                 start_index = i
                 saved = False
+        return super().clean()
+
+    def save(self, commit=True):
+        post = super().save(commit=False)
         if commit:
             post.save()
             post.hashtags.clear()
-            for hashtag in hashtags:
+            for hashtag in self.hashtags:
                 post.hashtags.add(hashtag)
+
         return post
 
     class Meta:
         model = Post
         fields = ('caption',)
 
-
-class PostInlineAdminForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['hashtags'].required = False
-
-    class Meta:
-        model = Post
-        fields = '__all__'

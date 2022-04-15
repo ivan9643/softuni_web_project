@@ -1,42 +1,10 @@
-from django.contrib.auth import views as auth_views, authenticate, login
+from django.views import generic as views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.views import generic as views
 from django.urls import reverse_lazy
-from softuni_web_project.accounts.forms import RegisterForm, ProfileEditForm, \
-    LoginForm
+from softuni_web_project.accounts.forms import ProfileEditForm
 from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.models import Post
-
-
-class UserRegisterView(views.CreateView):
-    form_class = RegisterForm
-    template_name = 'accounts/register.html'
-    success_url = reverse_lazy('home')
-
-    def form_valid(self, form):
-        to_return = super().form_valid(form)
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password1']
-        user = authenticate(
-            username=username,
-            password=password,
-        )
-        login(self.request, user)
-        return to_return
-
-
-class UserLoginView(auth_views.LoginView):
-    form_class = LoginForm
-    template_name = 'accounts/login.html'
-    success_url = reverse_lazy('home')
-
-
-class UserLogoutView(auth_views.LogoutView):
-    pass
-
-
-# login required mixin where needed !!!
 
 
 class ProfileDetailsView(views.DetailView):
@@ -82,6 +50,11 @@ class ProfileEditView(LoginRequiredMixin, views.UpdateView):
 
     def get_queryset(self):
         return Profile.objects.get_queryset()
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['profile'] = Profile.objects.get(user_id=self.object.user_id)
+        return kwargs
 
 
 class ProfileDeleteView(LoginRequiredMixin, views.DeleteView):

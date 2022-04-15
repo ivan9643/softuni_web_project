@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-
 from softuni_web_project.accounts.forms import RegisterForm
 from softuni_web_project.accounts.models import Profile
 

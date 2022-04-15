@@ -1,10 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.http import urlencode
-
-from softuni_web_project.accounts.models import Profile
+from softuni_web_project.accounts.models import Profile, Country
 from softuni_web_project.main_app.admin import PostInlineAdmin
 
 UserModel = get_user_model()
@@ -33,3 +29,9 @@ class UserAdmin(admin.ModelAdmin):
             form.base_fields['user_permissions'].disabled = True
 
         return form
+
+
+@admin.register(Country)
+class CountryAdmin(admin.ModelAdmin):
+    search_fields = ('name',)
+    list_display = ('name',)

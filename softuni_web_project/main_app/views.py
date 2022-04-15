@@ -2,12 +2,10 @@ import django.views.generic as views
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-
 from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.forms import PostCreateForm, \
     PostEditForm
@@ -76,6 +74,11 @@ class PostEditView(LoginRequiredMixin, views.UpdateView):
             return HttpResponseRedirect(redirect_url)
         return super().post(request, *args, **kwargs)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['post'] = Post.objects.get(pk=self.object.id)
+        return kwargs
+
 
 class PostDeleteView(LoginRequiredMixin, views.DeleteView):
     model = Post
@@ -130,7 +133,7 @@ class SearchHashtagsView(views.ListView):
         posts = []
         if 'search' in self.request.GET:
             search = self.request.GET['search_text_input']
-            posts = Post.objects.filter(hashtags__name__contains=search).distinct()\
+            posts = Post.objects.filter(hashtags__name__contains=search).distinct() \
                 .annotate(likes_count=Count('likes')) \
                 .order_by('-likes_count')
         elif 'show_all' in self.request.GET:

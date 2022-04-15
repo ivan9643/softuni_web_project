@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-
 from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.models import Post
 
@@ -48,7 +47,7 @@ class ProfileDetailsViewTests(TestCase):
         profile2 = Profile(
             first_name=self.VALID_FIRST_NAME,
             last_name=self.VALID_LAST_NAME,
-            user_id=user2.id
+            user=user2
         )
         profile2.save()
 

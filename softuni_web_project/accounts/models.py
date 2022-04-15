@@ -1,9 +1,8 @@
 from django.contrib.auth import models as auth_models, get_user_model
 from django.core.validators import MinLengthValidator
 from django.db import models
-
 from softuni_web_project.accounts.managers import CustomUserManager
-from softuni_web_project.tools.validators import validate_only_letters,\
+from softuni_web_project.tools.validators import validate_only_letters, \
     validate_only_letters_digits_underscores_and_dots, \
     validate_only_lowercase
 
@@ -45,6 +44,7 @@ class Country(models.Model):
         unique=True,
     )
 
+
 class Profile(models.Model):
     FIRST_NAME_MAX_LENGTH = 30
     FIRST_NAME_MIN_LENGTH = 2
@@ -82,9 +82,6 @@ class Profile(models.Model):
     picture = models.ImageField(
         null=True,
         blank=True,
-        # validators=(
-        #     validate_file_max_size(5),
-        # )
     )
 
     date_of_birth = models.DateField(
@@ -127,12 +124,16 @@ class Profile(models.Model):
         'self',
         related_name='following_profiles',
         symmetrical=False,
+        null=True,
+        blank=True,
     )
 
     followers = models.ManyToManyField(
         'self',
         related_name='followers_profiles',
         symmetrical=False,
+        null=True,
+        blank=True,
     )
 
     def __str__(self):

@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-
 from softuni_web_project.accounts.models import Profile
 from softuni_web_project.main_app.models import Post
 
@@ -21,7 +20,7 @@ class SignalsTests(TestCase):
 
     def test_auto_create_profile_after_creating_superuser(self):
         try:
-            user_profile = Profile.objects.get(user_id=self.user.id)
+            user_profile = Profile.objects.get(user=self.user)
         except Profile.DoesNotExist:
             user_profile = None
         self.assertIsNotNone(user_profile)
@@ -30,7 +29,7 @@ class SignalsTests(TestCase):
         profile = Profile(
             first_name=self.VALID_FIRST_NAME,
             last_name=self.VALID_LAST_NAME,
-            user_id=self.user.id
+            user=self.user
         )
         profile.save()
         post = Post(id=1, profile=profile, caption=self.VALID_POST_CAPTION)

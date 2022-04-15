@@ -19,7 +19,7 @@ class SearchProfileViewTests(TestCase):
         profile = Profile(
             first_name=self.VALID_FIRST_NAME,
             last_name=self.VALID_LAST_NAME,
-            user_id=user.id
+            user=user
         )
         profile.save()
         response = self.client.get(reverse('search profiles'), data=

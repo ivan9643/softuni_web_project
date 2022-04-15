@@ -1,6 +1,4 @@
-from django.contrib.auth import get_user_model
 from django.db import models
-
 from softuni_web_project.accounts.models import Profile
 
 
@@ -11,24 +9,19 @@ class Hashtag(models.Model):
         unique=True,
     )
 
-
+    def __str__(self):
+        return self.name
 
 
 class Post(models.Model):
-    CAPTION_MAX_LENGTH = 200
+    CAPTION_MAX_LENGTH = 130
     caption = models.CharField(
         null=True,
         blank=True,
         max_length=CAPTION_MAX_LENGTH,
     )
 
-    photo = models.ImageField(
-        null=True,
-        blank=True,
-        # validators=(
-        #     validate_file_max_size(5),
-        # )
-    )
+    photo = models.ImageField()
 
     profile = models.ForeignKey(
         Profile,
@@ -41,11 +34,15 @@ class Post(models.Model):
 
     likes = models.ManyToManyField(
         Profile,
-        related_name='post_likes'
+        related_name='post_likes',
+        null=True,
+        blank=True,
     )
 
     hashtags = models.ManyToManyField(
         Hashtag,
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
