@@ -24,10 +24,12 @@ class UserAdmin(admin.ModelAdmin):
         is_superuser = request.user.is_superuser
 
         if not is_superuser:
-            form.base_fields['is_superuser'].disabled = True
-            form.base_fields['groups'].disabled = True
-            form.base_fields['user_permissions'].disabled = True
-
+            if 'is_superuser' in form.base_fields:
+                form.base_fields['is_superuser'].disabled = True
+            if 'groups' in form.base_fields:
+                form.base_fields['groups'].disabled = True
+            if 'user_permissions' in form.base_fields:
+                form.base_fields['user_permissions'].disabled = True
         return form
 
 
